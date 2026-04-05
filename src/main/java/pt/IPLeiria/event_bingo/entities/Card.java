@@ -1,10 +1,16 @@
-package pt.IPLeiria.event_bingo.model;
+package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
+@Getter
+@Setter
 @Table(name = "cards")
 public class Card {
     @Id
@@ -39,9 +45,6 @@ public class Card {
     )
     private List<User> users;
 
-    public Card() {
-    }
-
     public Card(String name, String size, double line_prize, double bingo_prize, double price, boolean approved) {
         this.name = name;
         this.size = size;
@@ -49,77 +52,5 @@ public class Card {
         this.bingo_prize = bingo_prize;
         this.price = price;
         this.approved = approved;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public double getLine_prize() {
-        return line_prize;
-    }
-
-    public void setLine_prize(double line_prize) {
-        this.line_prize = line_prize;
-    }
-
-    public double getBingo_prize() {
-        return bingo_prize;
-    }
-
-    public void setBingo_prize(double bingo_prize) {
-        this.bingo_prize = bingo_prize;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public boolean isApproved() {
-        return approved;
-    }
-
-    public void setApproved(boolean approved) {
-        this.approved = approved;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(List<Event> events) {
-        this.events = events;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
     }
 }
