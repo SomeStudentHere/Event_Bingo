@@ -1,0 +1,27 @@
+meta {
+  name: Create event
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/events
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "prediction": "test test test",
+    "sport": "test test test",
+    "date": "2026-04-10",
+    "home_team": "",
+    "away_team": ""
+  }
+}
+
+body:form-urlencoded {
+  full_name: test test test
+  email: a@mail.com
+  password: 123
+}

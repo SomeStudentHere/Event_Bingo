@@ -19,7 +19,9 @@ public class Card {
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
-    private String size;
+    private int rows;
+    @Column(nullable = false)
+    private int cols;
     @Column(nullable = false)
     private double line_prize;
     @Column(nullable = false)
@@ -37,20 +39,20 @@ public class Card {
     )
     private List<Event> events;
 
+    @Column(unique = true, nullable = false)
+    private String eventsSignature;
+
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
             name = "card_users",
             joinColumns = @JoinColumn(name = "card_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"card_id", "user_id"})
     )
     private List<User> users;
 
-    public Card(String name, String size, double line_prize, double bingo_prize, double price, boolean approved) {
-        this.name = name;
-        this.size = size;
-        this.line_prize = line_prize;
-        this.bingo_prize = bingo_prize;
-        this.price = price;
-        this.approved = approved;
+
+    public void addUser(User user) {
+        users.add(user);
     }
 }

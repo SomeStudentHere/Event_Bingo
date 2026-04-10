@@ -1,0 +1,21 @@
+meta {
+  name: Buy a card
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/cards/152/buy?user_id=102
+  body: none
+  auth: none
+}
+
+params:query {
+  user_id: 102
+}
+
+body:form-urlencoded {
+  full_name: test test test
+  email: a@mail.com
+  password: 123
+}

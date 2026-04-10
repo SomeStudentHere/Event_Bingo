@@ -31,12 +31,4 @@ public class Transaction {
 
     @Column(nullable = false)
     private Date date;
-
-    public Transaction(User user, TransactionType type, double amount, Date date) {
-        this.user = user;
-        this.type = type;
-        this.amount = amount;
-        this.date = date;
-    }
-
 }

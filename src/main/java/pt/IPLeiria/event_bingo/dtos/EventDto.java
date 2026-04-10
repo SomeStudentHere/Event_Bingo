@@ -1,5 +1,6 @@
 package pt.IPLeiria.event_bingo.dtos;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,4 +17,6 @@ public class EventDto {
     private Date date;
     private String sport;
     private EventStatus status;
+    private String home_team;
+    private String away_team;
 }
