@@ -35,9 +35,7 @@ public class User {
     @ManyToMany(mappedBy = "users")
     private List<Card> cards;
 
-    public User(String full_name, String email, String password) {
-        this.full_name = full_name;
-        this.email = email;
-        this.password = password;
+    public void addCard(Card card) {
+        cards.add(card);
     }
 }

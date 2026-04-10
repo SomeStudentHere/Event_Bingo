@@ -1,6 +1,7 @@
 package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Table(name = "events")
@@ -18,6 +20,10 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+    @Column
+    private String home_team;
+    @Column
+    private String away_team;
     @Column(nullable = false)
     private String prediction;
     @Column(nullable = false)
@@ -30,12 +36,4 @@ public class Event {
 
     @ManyToMany(mappedBy = "events")
     private List<Card> cards;
-
-    public Event(String prediction, Date date, String sport, EventStatus status) {
-        this.prediction = prediction;
-        this.date = date;
-        this.sport = sport;
-        this.status = status;
-    }
-
 }

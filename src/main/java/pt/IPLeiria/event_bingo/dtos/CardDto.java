@@ -2,6 +2,7 @@ package pt.IPLeiria.event_bingo.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -12,7 +13,8 @@ import java.util.List;
 public class CardDto {
     private long id;
     private String name;
-    private String size;
+    private int rows;
+    private int cols;
     private double line_prize;
     private double bingo_prize;
     private double price;
