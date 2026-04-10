@@ -1,19 +1,19 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import pt.IPLeiria.event_bingo.dtos.UserDto;
 import pt.IPLeiria.event_bingo.dtos.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/users/")
+@RestController
+@RequestMapping("/users")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -24,7 +24,7 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public List<UserDto> getUsers(){
         return userRepository.findAll()
                 .stream()
@@ -32,7 +32,7 @@ public class UserController {
                 .toList();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<UserDto> getUsers(@PathVariable Long id){
         var user = userRepository.findById(id).orElse(null);
 
@@ -41,10 +41,12 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-    @PostMapping("/")
-    public ResponseEntity<UserDto> createUser(@RequestParam UserRegisterDto request, UriComponentsBuilder uriBuilder){
+    @PostMapping
+    public ResponseEntity<UserDto> createUser(@RequestBody UserRegisterDto request, UriComponentsBuilder uriBuilder){
 
         User user = userMapper.toEntity(request);
+        user.setBalance(0f);
+        user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);
