@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/cards/152/buy?user_id=102
+  url: http://localhost:8080/cards/152/buy
   body: none
   auth: none
 }
 
-params:query {
-  user_id: 102
+headers {
+  Authorization: 102
 }
 
 body:form-urlencoded {
