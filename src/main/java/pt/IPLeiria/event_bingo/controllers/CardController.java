@@ -83,7 +83,7 @@ public class CardController {
     }
 
     @PostMapping("/{id}/buy")
-    public ResponseEntity<UserDto> getUsers(@PathVariable Long id, @RequestParam( value = "user_id") Long user_id){
+    public ResponseEntity<UserDto> buyCard(@PathVariable Long id, @RequestHeader("Authorization") Long user_id){
         var card = cardRepository.findById(id).orElseThrow(() -> new BadRequestException("Card not found: " + id));
 
         var user = userRepository.findById(user_id).orElseThrow(() -> new BadRequestException("User not found: " + user_id));
