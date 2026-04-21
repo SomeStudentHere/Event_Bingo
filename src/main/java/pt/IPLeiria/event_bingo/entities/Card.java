@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
+import pt.IPLeiria.event_bingo.repositories.EventRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @NoArgsConstructor
@@ -54,5 +57,17 @@ public class Card {
 
     public void addUser(User user) {
         users.add(user);
+    }
+
+    public void setEvents(List<Long> eventsId, EventRepository eventRepository) throws BadRequestException{
+
+        this.setEvents(
+                eventsId.stream()
+                        .map(eventId -> eventRepository.findById(id)
+                                .orElseThrow(() -> new BadRequestException("Event not found: " + eventId)))
+                        .collect(Collectors.toList())
+        );
+
+        this.setEventsSignature(eventsId.stream().map(String::valueOf).collect(Collectors.joining("-")));
     }
 }

@@ -1,0 +1,30 @@
+meta {
+  name: Update a card
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/cards/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "test",
+    "rows": 2,
+    "cols": 2,
+    "line_prize": 50,
+    "bingo_prize": 500,
+    "price": 10,
+    "events": [1,2,3,4],
+    "approved": "true"
+  }
+}
+
+body:form-urlencoded {
+  full_name: test test test
+  email: a@mail.com
+  password: 123
+}

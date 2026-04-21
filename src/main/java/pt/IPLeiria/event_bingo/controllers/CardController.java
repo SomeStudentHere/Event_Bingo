@@ -1,11 +1,13 @@
 package pt.IPLeiria.event_bingo.controllers;
 
+import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import pt.IPLeiria.event_bingo.dtos.CardDto;
 import pt.IPLeiria.event_bingo.dtos.CardRequestDto;
+import pt.IPLeiria.event_bingo.dtos.CardUpdateDto;
 import pt.IPLeiria.event_bingo.dtos.UserDto;
 import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.User;
@@ -58,22 +60,13 @@ public class CardController {
         card.setRows(request.getRows());
         card.setCols(request.getCols());
 
-
-
         card.setApproved(false);
 
-        card.setEventsSignature(request.getEvents().stream().map(String::valueOf).collect(Collectors.joining("-")));
+        card.setEvents(request.getEvents(), eventRepository);
 
         if (cardRepository.existsByEventsSignature(card.getEventsSignature())){
             throw new BadRequestException("Card already exists! Try to change events order or use another events!");
         }
-
-        card.setEvents(
-                request.getEvents().stream()
-                        .map(id -> eventRepository.findById(id)
-                                .orElseThrow(() -> new BadRequestException("Event not found: " + id)))
-                        .toList()
-        );
 
         cardRepository.save(card);
 
@@ -82,8 +75,32 @@ public class CardController {
         return ResponseEntity.created(uriBuilder.path("/cards/{id}").buildAndExpand(cardDto.getId()).toUri()).body(cardDto);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<CardDto> updateCard(@PathVariable Long id, @Valid @RequestBody CardUpdateDto request){
+        if (request.getRows() * request.getCols() != request.getEvents().size()){
+            throw new BadRequestException("Size of card (" + request.getRows() * request.getCols() + ") and number of events (" + request.getEvents().size() + ") doesn't match!");
+        }
+
+        var card = cardRepository.findById(id).orElseThrow(() -> new BadRequestException("Card not found: " + id));
+
+        card.setName(request.getName());
+        card.setApproved(request.getApproved());
+        card.setRows(request.getRows());
+        card.setCols(request.getCols());
+
+        card.setEvents(request.getEvents(), eventRepository);
+
+        card.setLine_prize(request.getLine_prize());
+        card.setPrice(request.getPrice());
+        card.setBingo_prize(request.getBingo_prize());
+
+        cardRepository.save(card);
+
+        return ResponseEntity.ok(cardMapper.toDto(card));
+    }
+
     @PostMapping("/{id}/buy")
-    public ResponseEntity<UserDto> buyCard(@PathVariable Long id, @RequestHeader("Authorization") Long user_id){
+    public ResponseEntity<?> buyCard(@PathVariable Long id, @RequestHeader("Authorization") Long user_id){
         var card = cardRepository.findById(id).orElseThrow(() -> new BadRequestException("Card not found: " + id));
 
         var user = userRepository.findById(user_id).orElseThrow(() -> new BadRequestException("User not found: " + user_id));
