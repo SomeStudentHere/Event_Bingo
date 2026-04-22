@@ -1,5 +1,6 @@
 package pt.IPLeiria.event_bingo.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -7,6 +8,7 @@ import pt.IPLeiria.event_bingo.dtos.UserDto;
 import pt.IPLeiria.event_bingo.dtos.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
+import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 
@@ -42,7 +44,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserRegisterDto request, UriComponentsBuilder uriBuilder){
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserRegisterDto request, UriComponentsBuilder uriBuilder){
+
+        if (userRepository.existsByEmail(request.getEmail())){
+            throw new BadRequestException("User's email already exists!");
+        }
+        if (userRepository.existsByUsername(request.getUsername())){
+            throw new BadRequestException("User's username already exists!");
+        }
 
         User user = userMapper.toEntity(request);
         user.setBalance(0f);
