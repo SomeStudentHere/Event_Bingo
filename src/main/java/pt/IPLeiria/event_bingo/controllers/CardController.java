@@ -113,4 +113,15 @@ public class CardController {
 
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteCard(@PathVariable Long id){
+        var card = cardRepository.findById(id).orElse(null);
+
+        if (card == null) return ResponseEntity.notFound().build();
+
+        cardRepository.delete(card);
+
+        return ResponseEntity.ok().build();
+    }
 }

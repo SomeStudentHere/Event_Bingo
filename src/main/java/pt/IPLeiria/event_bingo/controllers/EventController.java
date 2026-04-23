@@ -7,6 +7,7 @@ import pt.IPLeiria.event_bingo.dtos.EventDto;
 import pt.IPLeiria.event_bingo.dtos.EventRequestDto;
 import pt.IPLeiria.event_bingo.entities.Event;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
+import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.EventMapper;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 
@@ -44,5 +45,18 @@ public class EventController {
         var eventDto = eventMapper.toDto(event);
 
         return ResponseEntity.created(uriBuilder.path("/events/{id}").buildAndExpand(eventDto.getId()).toUri()).body(eventDto);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteEvent(@PathVariable Long id){
+        var event = eventRepository.findById(id).orElse(null);
+
+        if (event.getCards().size() > 0) throw new BadRequestException("Can't delete event " + id + " because it's associated to an card!");
+
+        if (event == null) return ResponseEntity.notFound().build();
+
+        eventRepository.delete(event);
+
+        return ResponseEntity.ok().build();
     }
 }

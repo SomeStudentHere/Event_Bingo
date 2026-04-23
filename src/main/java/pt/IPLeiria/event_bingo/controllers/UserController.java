@@ -63,4 +63,14 @@ public class UserController {
         return ResponseEntity.created(uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri()).body(userDto);
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id){
+        var user = userRepository.findById(id).orElse(null);
+
+        if (user == null) return ResponseEntity.notFound().build();
+
+        userRepository.delete(user);
+
+        return ResponseEntity.ok().build();
+    }
 }
