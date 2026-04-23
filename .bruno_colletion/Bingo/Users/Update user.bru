@@ -1,0 +1,26 @@
+meta {
+  name: Update user
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:8080/users/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "full_name": "test test test",
+    "email": "b@mail.com",
+    "password": "123",
+    "username": "test1"
+  }
+}
+
+body:form-urlencoded {
+  full_name: test test test
+  email: a@mail.com
+  password: 123
+}

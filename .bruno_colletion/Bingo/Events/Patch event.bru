@@ -1,0 +1,23 @@
+meta {
+  name: Patch event
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:8080/events/3
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "prediction": "test test test2"
+  }
+}
+
+body:form-urlencoded {
+  full_name: test test test
+  email: a@mail.com
+  password: 123
+}

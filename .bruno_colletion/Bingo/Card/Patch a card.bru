@@ -1,0 +1,23 @@
+meta {
+  name: Patch a card
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:8080/cards/2
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "hiuysfduihyofsadhuikjsdfhuilkfsdhfsdhkulfsd"
+  }
+}
+
+body:form-urlencoded {
+  full_name: test test test
+  email: a@mail.com
+  password: 123
+}

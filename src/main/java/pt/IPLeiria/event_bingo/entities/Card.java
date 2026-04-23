@@ -63,7 +63,7 @@ public class Card {
 
         this.setEvents(
                 eventsId.stream()
-                        .map(eventId -> eventRepository.findById(id)
+                        .map(eventId -> eventRepository.findById(eventId)
                                 .orElseThrow(() -> new BadRequestException("Event not found: " + eventId)))
                         .collect(Collectors.toList())
         );

@@ -1,8 +1,9 @@
-package pt.IPLeiria.event_bingo.dtos;
+package pt.IPLeiria.event_bingo.dtos.transactions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import pt.IPLeiria.event_bingo.dtos.users.UserAllDto;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 
 import java.util.Date;

@@ -1,11 +1,11 @@
 meta {
   name: Update a card
   type: http
-  seq: 4
+  seq: 5
 }
 
 put {
-  url: http://localhost:8080/cards/1
+  url: http://localhost:8080/cards/2
   body: json
   auth: none
 }
@@ -18,8 +18,9 @@ body:json {
     "line_prize": 50,
     "bingo_prize": 500,
     "price": 10,
-    "events": [1,2,3,4],
+    "events": [52,3,4,5],
     "approved": "true"
+    
   }
 }
 
