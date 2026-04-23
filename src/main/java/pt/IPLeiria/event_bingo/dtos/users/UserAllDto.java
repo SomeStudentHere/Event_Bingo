@@ -1,4 +1,4 @@
-package pt.IPLeiria.event_bingo.dtos;
+package pt.IPLeiria.event_bingo.dtos.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

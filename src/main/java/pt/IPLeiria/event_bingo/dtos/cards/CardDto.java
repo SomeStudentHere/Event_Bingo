@@ -1,9 +1,9 @@
-package pt.IPLeiria.event_bingo.dtos;
+package pt.IPLeiria.event_bingo.dtos.cards;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pt.IPLeiria.event_bingo.dtos.events.EventDto;
 
 import java.util.List;
 

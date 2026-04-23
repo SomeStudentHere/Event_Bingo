@@ -3,7 +3,7 @@ package pt.IPLeiria.event_bingo.controllers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pt.IPLeiria.event_bingo.dtos.TransactionDto;
+import pt.IPLeiria.event_bingo.dtos.transactions.TransactionDto;
 import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
 import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 

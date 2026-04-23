@@ -1,4 +1,4 @@
-package pt.IPLeiria.event_bingo.dtos;
+package pt.IPLeiria.event_bingo.dtos.events;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;

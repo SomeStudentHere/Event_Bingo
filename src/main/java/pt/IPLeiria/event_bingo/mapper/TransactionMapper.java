@@ -1,7 +1,7 @@
 package pt.IPLeiria.event_bingo.mapper;
 
 import org.mapstruct.Mapper;
-import pt.IPLeiria.event_bingo.dtos.TransactionDto;
+import pt.IPLeiria.event_bingo.dtos.transactions.TransactionDto;
 import pt.IPLeiria.event_bingo.entities.Transaction;
 
 @Mapper(componentModel = "spring")

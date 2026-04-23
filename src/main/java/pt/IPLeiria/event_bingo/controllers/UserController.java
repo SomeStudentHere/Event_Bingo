@@ -4,11 +4,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import pt.IPLeiria.event_bingo.dtos.UserDto;
-import pt.IPLeiria.event_bingo.dtos.UserRegisterDto;
+import pt.IPLeiria.event_bingo.dtos.users.UserDto;
+import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
+import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
+import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 
@@ -35,10 +37,8 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<UserDto> getUsers(@PathVariable Long id){
-        var user = userRepository.findById(id).orElse(null);
-
-        if (user == null) return ResponseEntity.notFound().build();
+    public ResponseEntity<UserDto> getUser(@PathVariable Long id){
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
         return ResponseEntity.ok(userMapper.toDto(user));
     }
@@ -63,11 +63,43 @@ public class UserController {
         return ResponseEntity.created(uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri()).body(userDto);
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+
+        user.setEmail(request.getEmail());
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        user.setFull_name(request.getFull_name());
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<UserDto> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto request){
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+
+        if (request.getEmail() != null)
+            user.setEmail(request.getEmail());
+        if (request.getUsername() != null)
+            user.setUsername(request.getUsername());
+        if (request.getPassword() != null)
+            user.setPassword(request.getPassword());
+        if (request.getFull_name() != null)
+            user.setFull_name(request.getFull_name());
+        if (request.getStatus() != null)
+            user.setStatus(request.getStatus());
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
-        var user = userRepository.findById(id).orElse(null);
-
-        if (user == null) return ResponseEntity.notFound().build();
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
         userRepository.delete(user);
 

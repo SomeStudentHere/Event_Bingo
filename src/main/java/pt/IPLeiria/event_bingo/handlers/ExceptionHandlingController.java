@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
+import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import tools.jackson.databind.exc.InvalidFormatException;
 
 import java.util.HashMap;
@@ -16,6 +17,11 @@ public class ExceptionHandlingController {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<?> handle(BadRequestException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handle(NotFoundException ex) {
+        return ResponseEntity.status(404).body(Map.of("error", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

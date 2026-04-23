@@ -1,13 +1,16 @@
 package pt.IPLeiria.event_bingo.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import pt.IPLeiria.event_bingo.dtos.EventDto;
-import pt.IPLeiria.event_bingo.dtos.EventRequestDto;
+import pt.IPLeiria.event_bingo.dtos.events.EventDto;
+import pt.IPLeiria.event_bingo.dtos.events.EventPatchDto;
+import pt.IPLeiria.event_bingo.dtos.events.EventRequestDto;
 import pt.IPLeiria.event_bingo.entities.Event;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
+import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.EventMapper;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 
@@ -46,6 +49,48 @@ public class EventController {
 
         return ResponseEntity.created(uriBuilder.path("/events/{id}").buildAndExpand(eventDto.getId()).toUri()).body(eventDto);
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
+
+        var event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event " + id + " not Found"));
+
+        event.setSport(request.getSport());
+        event.setDate(request.getDate());
+        event.setPrediction(request.getPrediction());
+        event.setAway_team(request.getAway_team());
+        event.setHome_team(request.getHome_team());
+
+        eventRepository.save(event);
+
+        var eventDto = eventMapper.toDto(event);
+        return ResponseEntity.ok(eventDto);
+    }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<EventDto> patchEvent(@PathVariable Long id, @Valid @RequestBody EventPatchDto request) {
+
+        var event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event " + id + " not Found"));
+
+        if (request.getSport() != null)
+            event.setSport(request.getSport());
+        if (request.getDate() != null)
+            event.setDate(request.getDate());
+        if (request.getPrediction() != null)
+            event.setPrediction(request.getPrediction());
+        if (request.getAway_team() != null)
+            event.setAway_team(request.getAway_team());
+        if (request.getHome_team() != null)
+            event.setHome_team(request.getHome_team());
+        if (request.getStatus() != null)
+            event.setStatus(request.getStatus());
+
+        eventRepository.save(event);
+
+        var eventDto = eventMapper.toDto(event);
+        return ResponseEntity.ok(eventDto);
+    }
+
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long id){

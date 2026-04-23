@@ -1,4 +1,4 @@
-package pt.IPLeiria.event_bingo.dtos;
+package pt.IPLeiria.event_bingo.dtos.cards;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
