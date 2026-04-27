@@ -1,21 +1,26 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardRequestDto;
 import pt.IPLeiria.event_bingo.entities.Card;
+import pt.IPLeiria.event_bingo.entities.Event;
+import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.CardMapper;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
+import pt.IPLeiria.event_bingo.services.CardGeneratorService;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/cards")
@@ -24,12 +29,14 @@ public class CardController {
     private final CardRepository cardRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final CardGeneratorService cardGeneratorService;
 
-    public CardController(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository) {
+    public CardController(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, CardGeneratorService cardGeneratorService) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.cardGeneratorService = cardGeneratorService;
     }
 
     @GetMapping
@@ -135,13 +142,23 @@ public class CardController {
 
         var user = userRepository.findById(user_id).orElseThrow(() -> new NotFoundException("User not found: " + user_id));
 
+        if (user.getBalance() - card.getPrice() < 0){
+            throw new BadRequestException("Insufficient balance to buy this card!");
+        }
+
+        user.setBalance(user.getBalance() - card.getPrice());
+
         user.addCard(card);
         card.addUser(user);
 
-        userRepository.save(user);
-        cardRepository.save(card);
+        try {
+            userRepository.save(user);
+            cardRepository.save(card);
+        } catch (DataIntegrityViolationException ex){
+            throw new BadRequestException("Can't buy this card! It's already yours!");
+        }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of("message", "Card bought successfully!"));
     }
 
     @DeleteMapping("{id}")
@@ -153,5 +170,40 @@ public class CardController {
         cardRepository.delete(card);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/auto")
+    public ResponseEntity<?> createCardsAuto(@Valid @RequestBody CardBuilderDto request){
+
+        if (cardGeneratorService.isRunning()){
+            return ResponseEntity
+                    .status(409)
+                    .body(Map.of("error",
+                            String.format("Builder is still working! %.2f%%", cardGeneratorService.getProgress())));
+        }
+
+        var events = eventRepository.findEventsByStatus(EventStatus.Pending);
+
+        if (events.size() < request.getCols() * request.getRows())
+            throw new BadRequestException("Size(" + request.getCols() * request.getRows() + ") is bigger than pending event count(" + events.size() + ")!");
+
+        cardGeneratorService.generateCards(request, events.stream().map(Event::getId).toList(), cardRepository, eventRepository);
+
+        return ResponseEntity.accepted().body(Map.of("message", "Process started!"));
+    }
+
+    @GetMapping("/auto")
+    public ResponseEntity<?> getCardsAuto(){
+
+        var map = new Hashtable<String, String>();
+
+        map.put("running", String.valueOf(cardGeneratorService.isRunning()));
+
+        if (cardGeneratorService.isRunning())
+            map.put("progress", String.valueOf(cardGeneratorService.getProgress()));
+
+        return ResponseEntity
+                .status(cardGeneratorService.isRunning()? 200: 404)
+                .body(map);
     }
 }

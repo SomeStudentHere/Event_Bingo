@@ -59,6 +59,13 @@ public class Card {
         users.add(user);
     }
 
+    public void setEvents(List<Event> events) {
+
+        this.events = events;
+
+        this.setEventsSignature(events.stream().map(x -> String.valueOf(x.getId())).collect(Collectors.joining("-")));
+    }
+
     public void setEvents(List<Long> eventsId, EventRepository eventRepository) throws BadRequestException{
 
         this.setEvents(
