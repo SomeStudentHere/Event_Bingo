@@ -1,0 +1,85 @@
+package pt.IPLeiria.event_bingo.services;
+
+import pt.IPLeiria.event_bingo.entities.Card;
+import pt.IPLeiria.event_bingo.entities.Event;
+import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
+import pt.IPLeiria.event_bingo.repositories.CardRepository;
+import lombok.Getter;
+import org.springframework.stereotype.Service;
+import pt.IPLeiria.event_bingo.repositories.UserRepository;
+
+import java.util.List;
+
+@Getter
+@Service
+public class CardCheckWinService {
+    private final CardRepository cardRepository;
+    private final UserRepository userRepository;
+
+    public CardCheckWinService(CardRepository cardRepository, UserRepository userRepository) {
+        this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
+    }
+
+    public void updateCardsAfterEventStatusChange(Event event) {
+        List<Card> cards = cardRepository.findByEventsContaining(event);
+
+        for (Card card : cards) {
+            boolean hasPending = card.getEvents()
+                    .stream()
+                    .anyMatch(e -> e.getStatus() == EventStatus.Pending);
+
+            if (hasPending) continue;
+
+            evaluateCard(card);
+        }
+    }
+
+    private void evaluateCard(Card card) {
+
+        List<Event> events = card.getEvents();
+
+        int rows = card.getRows();
+        int cols = card.getCols();
+
+        Event[][] grid = new Event[rows][cols];
+
+        for (int i = 0; i < events.size(); i++) {
+            grid[i / cols][i % cols] = events.get(i);
+        }
+
+        boolean hasLine = false;
+
+        for (int i = 0; i < rows; i++) {
+            boolean fullLine = true;
+
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j].getStatus() != EventStatus.Win) {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine) {
+                hasLine = true;
+                break;
+            }
+        }
+
+        boolean bingo = events.stream()
+                .allMatch(e -> e.getStatus() == EventStatus.Win);
+
+        if (bingo) {
+            for (User user : card.getUsers()) {
+                user.setBalance(user.getBalance() + card.getBingo_prize());
+                userRepository.save(user);
+            }
+        } else if (hasLine) {
+            for (User user : card.getUsers()) {
+                user.setBalance(user.getBalance() + card.getLine_prize());
+                userRepository.save(user);
+            }
+        }
+    }
+}
