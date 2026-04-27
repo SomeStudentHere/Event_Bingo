@@ -1,0 +1,32 @@
+meta {
+  name: Create card AUTO
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:8080/cards/auto
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "count": 20,
+    "rows": 2,
+    "cols": 2,
+    "bingo_prize_min": 50,
+    "bingo_prize_max": 300,
+    "line_prize_min": 10,
+    "line_prize_max": 100,
+    "price_min": 5,
+    "price_max": 500
+    
+  }
+}
+
+body:form-urlencoded {
+  full_name: test test test
+  email: a@mail.com
+  password: 123
+}

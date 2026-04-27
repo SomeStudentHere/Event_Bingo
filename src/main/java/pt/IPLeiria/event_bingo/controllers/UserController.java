@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import pt.IPLeiria.event_bingo.dtos.users.UserAllDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
@@ -78,7 +79,7 @@ public class UserController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<UserDto> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto request){
+    public ResponseEntity<UserAllDto> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto request){
         var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
         if (request.getEmail() != null)
@@ -91,10 +92,12 @@ public class UserController {
             user.setFull_name(request.getFull_name());
         if (request.getStatus() != null)
             user.setStatus(request.getStatus());
+        if (request.getBalance() != null)
+            user.setBalance(user.getBalance() + request.getBalance());
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(userMapper.toDto(user));
+        return ResponseEntity.ok(userMapper.toAllDto(user));
     }
 
     @DeleteMapping("{id}")

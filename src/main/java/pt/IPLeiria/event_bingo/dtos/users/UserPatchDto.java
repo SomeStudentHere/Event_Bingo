@@ -14,6 +14,6 @@ public class UserPatchDto {
     private String email;
     @Size(min = 3, message = "Password must be at least 3 characters")
     private String password;
-    private double balance;
+    private Double balance;
     private UserStatus status;
 }

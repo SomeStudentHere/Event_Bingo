@@ -1,13 +1,21 @@
 meta {
-  name: Get user
+  name: Get card AUTO
   type: http
-  seq: 3
+  seq: 8
 }
 
 get {
-  url: http://localhost:8080/users/1
+  url: http://localhost:8080/cards/auto
   body: none
   auth: none
+}
+
+body:json {
+  {
+    "rows": 2,
+    "cols": 2,
+    "line_prize": 50
+  }
 }
 
 body:form-urlencoded {
