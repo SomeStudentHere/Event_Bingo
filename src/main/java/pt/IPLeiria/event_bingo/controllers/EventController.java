@@ -13,6 +13,7 @@ import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.EventMapper;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
+import pt.IPLeiria.event_bingo.services.CardCheckWinService;
 
 import java.util.List;
 
@@ -21,10 +22,13 @@ import java.util.List;
 public class EventController {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
+    private final CardCheckWinService cardCheckWinService;
 
-    public EventController(EventRepository eventRepository, EventMapper eventMapper) {
+    public EventController(EventRepository eventRepository, EventMapper eventMapper, CardCheckWinService cardCheckWinService) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
+        this.cardCheckWinService = cardCheckWinService;
+
     }
 
     @GetMapping
@@ -34,6 +38,7 @@ public class EventController {
                 .map(eventMapper::toDto)
                 .toList();
     }
+
 
 
     @PostMapping
@@ -84,6 +89,7 @@ public class EventController {
             event.setHome_team(request.getHome_team());
         if (request.getStatus() != null)
             event.setStatus(request.getStatus());
+            cardCheckWinService.updateCardsAfterEventStatusChange(event);
 
         eventRepository.save(event);
 
