@@ -8,12 +8,9 @@ import pt.IPLeiria.event_bingo.dtos.users.UserAllDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
-import pt.IPLeiria.event_bingo.entities.User;
-import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
-import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
-import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
+import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.util.List;
 
@@ -23,10 +20,12 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository, UserMapper userMapper) {
+    public UserController(UserRepository userRepository, UserMapper userMapper, UserService userService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -39,25 +38,14 @@ public class UserController {
 
     @GetMapping("{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id){
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+        var user = userService.get(id);
 
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserRegisterDto request, UriComponentsBuilder uriBuilder){
-
-        if (userRepository.existsByEmail(request.getEmail())){
-            throw new BadRequestException("User's email already exists!");
-        }
-        if (userRepository.existsByUsername(request.getUsername())){
-            throw new BadRequestException("User's username already exists!");
-        }
-
-        User user = userMapper.toEntity(request);
-        user.setBalance(0f);
-        user.setStatus(UserStatus.ACTIVE);
-        userRepository.save(user);
+        var user = userService.create(request);
 
         var userDto = userMapper.toDto(user);
 
@@ -66,45 +54,21 @@ public class UserController {
 
     @PutMapping("{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
-
-        user.setEmail(request.getEmail());
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setFull_name(request.getFull_name());
-
-        userRepository.save(user);
+        var user = userService.update(request, id);
 
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @PatchMapping("{id}")
     public ResponseEntity<UserAllDto> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto request){
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
-
-        if (request.getEmail() != null)
-            user.setEmail(request.getEmail());
-        if (request.getUsername() != null)
-            user.setUsername(request.getUsername());
-        if (request.getPassword() != null)
-            user.setPassword(request.getPassword());
-        if (request.getFull_name() != null)
-            user.setFull_name(request.getFull_name());
-        if (request.getStatus() != null)
-            user.setStatus(request.getStatus());
-        if (request.getBalance() != null)
-            user.setBalance(user.getBalance() + request.getBalance());
-
-        userRepository.save(user);
+        var user =  userService.patch(request, id);
 
         return ResponseEntity.ok(userMapper.toAllDto(user));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
-
-        userRepository.delete(user);
+        userService.delete(id);
 
         return ResponseEntity.ok().build();
     }
