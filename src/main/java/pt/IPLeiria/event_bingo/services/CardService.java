@@ -31,14 +31,12 @@ public class CardService {
     private final CardRepository cardRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final CardService cardService;
 
-    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, CardService cardService) {
+    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
-        this.cardService = cardService;
     }
 
     public Card create(CardRequestDto request){
