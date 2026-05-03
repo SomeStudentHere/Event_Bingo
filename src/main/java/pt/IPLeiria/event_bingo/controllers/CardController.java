@@ -30,7 +30,7 @@ public class CardController {
 
     @GetMapping
     public List<CardDto> getCards(){
-        return cardRepository.findAll()
+        return cardService.list()
                 .stream()
                 .map(cardMapper::toDto)
                 .toList();

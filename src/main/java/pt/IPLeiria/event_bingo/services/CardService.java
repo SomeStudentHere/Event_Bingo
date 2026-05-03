@@ -41,6 +41,10 @@ public class CardService {
         this.cardService = cardService;
     }
 
+    public List<Card> list() {
+        return cardRepository.findAll();
+    }
+
     public Card create(CardRequestDto request){
 
         if (request.getRows() * request.getCols() != request.getEvents().size()){

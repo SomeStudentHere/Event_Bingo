@@ -18,19 +18,17 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserService userService;
 
-    public UserController(UserRepository userRepository, UserMapper userMapper, UserService userService) {
-        this.userRepository = userRepository;
+    public UserController(UserMapper userMapper, UserService userService) {
         this.userMapper = userMapper;
         this.userService = userService;
     }
 
     @GetMapping
     public List<UserDto> getUsers(){
-        return userRepository.findAll()
+        return userService.list()
                 .stream()
                 .map(userMapper::toDto)
                 .toList();
