@@ -10,6 +10,8 @@ import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.EventMapper;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 
+import java.util.List;
+
 @Service
 public class EventService {
 
@@ -21,6 +23,10 @@ public class EventService {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.cardCheckWinService = cardCheckWinService;
+    }
+
+    public List<Event> list() {
+        return eventRepository.findAll();
     }
 
     public Event create(EventRequestDto request){

@@ -28,7 +28,7 @@ public class EventController {
 
     @GetMapping
     public List<EventDto> getEvents(){
-        return eventRepository.findAll()
+        return eventService.list()
                 .stream()
                 .map(eventMapper::toDto)
                 .toList();
