@@ -116,4 +116,9 @@ public class UserService {
 
         return jwtService.generateToken(user.getUsername());
     }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
 }

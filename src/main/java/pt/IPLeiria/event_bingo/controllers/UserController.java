@@ -8,8 +8,10 @@ import pt.IPLeiria.event_bingo.dtos.users.UserAllDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
+import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
+import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.util.List;
@@ -20,10 +22,12 @@ public class UserController {
 
     private final UserMapper userMapper;
     private final UserService userService;
+    private final JwtService jwtService;
 
-    public UserController(UserMapper userMapper, UserService userService) {
+    public UserController(UserMapper userMapper, UserService userService, JwtService jwtService) {
         this.userMapper = userMapper;
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
@@ -69,5 +73,16 @@ public class UserController {
         userService.delete(id);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserAllDto> getMe(@RequestHeader("Authorization") String token) {
+
+        String jwt = token.replace("Bearer ", "");
+        String username = jwtService.extractUsername(jwt);
+
+        User user = userService.findByUsername(username);
+
+        return ResponseEntity.ok(userMapper.toAllDto(user));
     }
 }
