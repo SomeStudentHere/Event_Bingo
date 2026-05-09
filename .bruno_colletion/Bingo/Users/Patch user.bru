@@ -1,18 +1,18 @@
 meta {
   name: Patch user
   type: http
-  seq: 6
+  seq: 5
 }
 
 patch {
-  url: http://localhost:8080/users/1
+  url: http://localhost:8080/users/2
   body: json
   auth: none
 }
 
 body:json {
   {
-    "balance": "10"
+    "balance": "500"
   }
 }
 

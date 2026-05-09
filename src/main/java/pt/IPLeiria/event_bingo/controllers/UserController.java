@@ -1,5 +1,6 @@
 package pt.IPLeiria.event_bingo.controllers;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,10 +9,12 @@ import pt.IPLeiria.event_bingo.dtos.users.UserDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.exeptions.InternalErrorException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.UserService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -37,8 +40,21 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable Long id){
+    public ResponseEntity<UserDto> getUser(HttpServletResponse response, @PathVariable Long id, @RequestHeader("Authorization") String token){
         var user = userService.get(id);
+
+        if (!token.isEmpty()){
+            String username = jwtService.extractUsername(token);
+            if (username.equals(user.getUsername())){
+                try {
+                    response.sendRedirect("/users/me");
+                } catch (IOException e) {
+                    throw new InternalErrorException("Had a problem redirecting to the user page!");
+                } finally {
+                    return null;
+                }
+            }
+        }
 
         return ResponseEntity.ok(userMapper.toDto(user));
     }
@@ -77,8 +93,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserAllDto> getMe(@RequestHeader("Authorization") String token) {
 
-        String jwt = token.replace("Bearer ", "");
-        String username = jwtService.extractUsername(jwt);
+        String username = jwtService.extractUsername(token);
 
         User user = userService.findByUsername(username);
 
