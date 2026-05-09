@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
+import pt.IPLeiria.event_bingo.exeptions.InternalErrorException;
 import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import tools.jackson.databind.exc.InvalidFormatException;
 
@@ -14,6 +15,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ExceptionHandlingController {
+    @ExceptionHandler(InternalErrorException.class)
+    public ResponseEntity<?> handle(InternalErrorException ex) {
+        return ResponseEntity.internalServerError().body(Map.of("error", ex.getMessage()));
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<?> handle(BadRequestException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
