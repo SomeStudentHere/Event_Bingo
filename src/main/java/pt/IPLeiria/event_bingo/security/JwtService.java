@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 
 import java.security.Key;
 import java.util.Date;
@@ -28,6 +29,12 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
+        if (!token.startsWith("Bearer ")){
+            throw new BadRequestException("Token is invalid! Missing Bearer Token prefix!");
+        }
+
+        token = token.substring(7);
+
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
