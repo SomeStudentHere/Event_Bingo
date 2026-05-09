@@ -39,24 +39,6 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
     }
 
-    public User create(UserRegisterDto request){
-
-        if (userRepository.existsByEmail(request.getEmail())){
-            throw new BadRequestException("User's email already exists!");
-        }
-        if (userRepository.existsByUsername(request.getUsername())){
-            throw new BadRequestException("User's username already exists!");
-        }
-
-        User user = userMapper.toEntity(request);
-        user.setBalance(0f);
-        user.setStatus(UserStatus.ACTIVE);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(user);
-
-        return user;
-    }
-
     public User update(UserRegisterDto request, Long id){
         var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
@@ -115,6 +97,27 @@ public class UserService {
         }
 
         return jwtService.generateToken(user.getUsername());
+    }
+
+
+    public String register(UserRegisterDto request){
+
+        if (userRepository.existsByEmail(request.getEmail())){
+            throw new BadRequestException("User's email already exists!");
+        }
+        if (userRepository.existsByUsername(request.getUsername())){
+            throw new BadRequestException("User's username already exists!");
+        }
+
+        User user = userMapper.toEntity(request);
+        user.setBalance(0f);
+        user.setStatus(UserStatus.ACTIVE);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        String token = jwtService.generateToken(user.getUsername());
+
+        return token;
     }
 
     public User findByUsername(String username) {
