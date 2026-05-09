@@ -77,8 +77,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserAllDto> getMe(@RequestHeader("Authorization") String token) {
 
-        String jwt = token.replace("Bearer ", "");
-        String username = jwtService.extractUsername(jwt);
+        String username = jwtService.extractUsername(token);
 
         User user = userService.findByUsername(username);
 
