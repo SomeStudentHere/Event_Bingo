@@ -3,7 +3,10 @@ package pt.IPLeiria.event_bingo.dtos.users;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import pt.IPLeiria.event_bingo.dtos.cards.CardDto;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
+
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -15,4 +18,5 @@ public class UserAllDto {
     private String email;
     private double balance;
     private UserStatus status;
+    private List<CardDto> cards;
 }

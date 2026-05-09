@@ -67,8 +67,8 @@ public class CardController {
     }
 
     @PostMapping("/{id}/buy")
-    public ResponseEntity<?> buyCard(@PathVariable Long id, @RequestHeader("Authorization") Long user_id){
-        cardService.buy(id, user_id);
+    public ResponseEntity<?> buyCard(@PathVariable Long id, @RequestHeader("Authorization") String token){
+        cardService.buy(id, token);
 
         return ResponseEntity.ok(Map.of("message", "Card bought successfully!"));
     }
