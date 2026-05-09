@@ -1,9 +1,7 @@
 package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 
@@ -12,8 +10,10 @@ import java.util.stream.Collectors;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "cards")
 public class Card {
     @Id
