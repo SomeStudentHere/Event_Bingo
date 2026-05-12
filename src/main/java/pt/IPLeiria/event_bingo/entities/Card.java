@@ -54,6 +54,7 @@ public class Card {
     )
     private List<User> users;
 
+    private boolean terminated;
 
     public void addUser(User user) {
         users.add(user);

@@ -1,13 +1,17 @@
 meta {
   name: Delete user
   type: http
-  seq: 4
+  seq: 3
 }
 
 delete {
   url: http://localhost:8080/users/102
   body: none
   auth: none
+}
+
+auth:bearer {
+  token: {{token}}
 }
 
 body:form-urlencoded {

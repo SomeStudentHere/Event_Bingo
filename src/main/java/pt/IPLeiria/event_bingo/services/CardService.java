@@ -16,6 +16,7 @@ import pt.IPLeiria.event_bingo.mapper.CardMapper;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
+import pt.IPLeiria.event_bingo.security.JwtService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 public class CardService {
 
+    private final JwtService jwtService;
     private boolean running = false;
     private Double progress = null;
 
@@ -31,17 +33,20 @@ public class CardService {
     private final CardRepository cardRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final CardService cardService;
 
-    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, CardService cardService) {
+    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
-        this.cardService = cardService;
+        this.jwtService = jwtService;
     }
 
     public List<Card> list() {
+        //todo
+        //if user_role = user
+        //return cardRepository.findCardsByApprovedIs(true);
+
         return cardRepository.findAll();
     }
 
@@ -129,10 +134,10 @@ public class CardService {
         return card;
     }
 
-    public void buy(Long id, Long user_id){
+    public void buy(Long id, String token){
         var card = cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card not found: " + id));
 
-        var user = userRepository.findById(user_id).orElseThrow(() -> new NotFoundException("User not found: " + user_id));
+        var user = userRepository.findByUsername(jwtService.extractUsername(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
 
         if (user.getBalance() - card.getPrice() < 0){
             throw new BadRequestException("Insufficient balance to buy this card!");
