@@ -70,14 +70,13 @@ public class CardCheckWinService {
         boolean bingo = events.stream()
                 .allMatch(e -> e.getStatus() == EventStatus.Win);
 
-        if (bingo) {
+        if (bingo || hasLine) {
+            double amount = bingo? card.getBingo_prize(): card.getLine_prize();
+
             for (User user : card.getUsers()) {
-                user.setBalance(user.getBalance() + card.getBingo_prize());
-                userRepository.save(user);
-            }
-        } else if (hasLine) {
-            for (User user : card.getUsers()) {
-                user.setBalance(user.getBalance() + card.getLine_prize());
+                card.setTerminated(true);
+                cardRepository.save(card);
+                user.setBalance(user.getBalance() + amount);
                 userRepository.save(user);
             }
         }

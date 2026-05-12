@@ -1,7 +1,6 @@
 package pt.IPLeiria.event_bingo.dtos.users;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
@@ -16,4 +15,5 @@ public class UserPatchDto {
     private String password;
     private Double balance;
     private UserStatus status;
+    private String avatar;
 }
