@@ -76,6 +76,9 @@ public class UserService {
             user.setStatus(request.getStatus());
         if (request.getBalance() != null)
             user.setBalance(user.getBalance() + request.getBalance());
+        if (request.getAvatar() != null){
+            user.setAvatar(request.getAvatar());
+        }
 
         userRepository.save(user);
 

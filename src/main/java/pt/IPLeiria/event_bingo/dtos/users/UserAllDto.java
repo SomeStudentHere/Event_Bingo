@@ -15,4 +15,5 @@ public class UserAllDto {
     private String email;
     private double balance;
     private UserStatus status;
+    private String avatar;
 }

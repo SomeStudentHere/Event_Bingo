@@ -31,6 +31,10 @@ public class User {
     @Enumerated()
     private UserStatus status;
 
+
+    @Column
+    private String avatar;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactions;
 
