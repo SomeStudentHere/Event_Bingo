@@ -1,6 +1,5 @@
 package pt.IPLeiria.event_bingo.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -12,26 +11,21 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import pt.IPLeiria.event_bingo.controllers.UserController;
-import pt.IPLeiria.event_bingo.dtos.users.UserDto;
+import pt.IPLeiria.event_bingo.controllers.AuthController;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
-import pt.IPLeiria.event_bingo.entities.User;
-import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
+import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@WebMvcTest(controllers = UserController.class)
+@WebMvcTest(controllers = AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-public class UserControllerTest {
+public class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -46,32 +40,38 @@ public class UserControllerTest {
 
     @Test
     public void registerUser() throws Exception{
-        var user =  User.builder()
-                .username("test")
-                .full_name("test")
-                .email("a@mail.com")
-                .password("test")
-                .status(UserStatus.ACTIVE)
-                .balance(0f)
-                .cards(new ArrayList<>())
-                .build();
-
         var userRegister = new UserRegisterDto();
-        userRegister.setUsername(user.getUsername());
-        userRegister.setFull_name(user.getFull_name());
-        userRegister.setEmail(user.getEmail());
-        userRegister.setPassword(user.getPassword());
+        userRegister.setUsername("test");
+        userRegister.setFull_name("test");
+        userRegister.setEmail("a@mail.com");
+        userRegister.setPassword("test");
+        userRegister.setAvatar(null);
 
-        var userDto = new UserDto(0l, user.getUsername(), user.getFull_name());
+        given(userService.register(ArgumentMatchers.any())).willReturn("<token>");
 
-        given(userService.create(ArgumentMatchers.any())).willReturn(user);
-        given(userMapper.toEntity(ArgumentMatchers.any())).willReturn(user);
-        given(userMapper.toDto(ArgumentMatchers.any())).willReturn(userDto);
-
-        ResultActions response = mockMvc.perform(post("/users")
+        ResultActions response = mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userRegister)));
 
-        response.andExpect(MockMvcResultMatchers.status().isCreated());
+        response.andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.content().string("{\"token\":\"<token>\"}"));
+    }
+
+    @Test
+    public void registerFailUser() throws Exception{
+        var userRegister = new UserRegisterDto();
+        userRegister.setUsername("test");
+        userRegister.setFull_name("test");
+        userRegister.setEmail("a@mail.com");
+        userRegister.setPassword("test");
+
+        given(userService.register(ArgumentMatchers.any())).willThrow(new  BadRequestException("User's email already exists!"));
+
+        ResultActions response = mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRegister)));
+
+        response.andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().string("{\"error\":\"User's email already exists!\"}"));
     }
 }
