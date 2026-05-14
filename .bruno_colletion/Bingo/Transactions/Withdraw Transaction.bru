@@ -1,0 +1,26 @@
+meta {
+  name: Withdraw Transaction
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/transactions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "type": "Withdraw",
+    "amount": 10,
+    "cardNumber": "1234 1234 1234 1234",
+    "cardValid": "07/30",
+    "cardHolderName": "test",
+    "ccNumber": "123"
+  }
+}
