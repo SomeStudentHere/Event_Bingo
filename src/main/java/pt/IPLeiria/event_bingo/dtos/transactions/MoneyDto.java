@@ -14,12 +14,11 @@ import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 @Getter
 @Setter
 public class MoneyDto {
-    @NotBlank
     @Enumerated
     private TransactionType type;
 
     @Min(10)
-    private double amount;
+    private Double amount;
 
     @NotBlank
     @Pattern(regexp = "^\\d{4} ?\\d{4} ?\\d{4} ?\\d{4}$", message = "Invalid card number!")

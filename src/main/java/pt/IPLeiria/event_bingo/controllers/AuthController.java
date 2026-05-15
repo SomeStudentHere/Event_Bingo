@@ -35,6 +35,6 @@ public class AuthController {
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRegisterDto request){
         var token = userService.register(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("token", token));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new LoginResponseDto(token));
     }
 }
