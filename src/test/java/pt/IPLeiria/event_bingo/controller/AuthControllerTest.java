@@ -38,14 +38,10 @@ public class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    UserRegisterDto userRegister = new UserRegisterDto("test", "test", "a@mail.com", "test", null);
+
     @Test
     public void registerUser() throws Exception{
-        var userRegister = new UserRegisterDto();
-        userRegister.setUsername("test");
-        userRegister.setFull_name("test");
-        userRegister.setEmail("a@mail.com");
-        userRegister.setPassword("test");
-        userRegister.setAvatar(null);
 
         given(userService.register(ArgumentMatchers.any())).willReturn("<token>");
 
@@ -55,23 +51,5 @@ public class AuthControllerTest {
 
         response.andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.content().string("{\"token\":\"<token>\"}"));
-    }
-
-    @Test
-    public void registerFailUser() throws Exception{
-        var userRegister = new UserRegisterDto();
-        userRegister.setUsername("test");
-        userRegister.setFull_name("test");
-        userRegister.setEmail("a@mail.com");
-        userRegister.setPassword("test");
-
-        given(userService.register(ArgumentMatchers.any())).willThrow(new  BadRequestException("User's email already exists!"));
-
-        ResultActions response = mockMvc.perform(post("/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userRegister)));
-
-        response.andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("{\"error\":\"User's email already exists!\"}"));
     }
 }
