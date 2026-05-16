@@ -1,10 +1,7 @@
 package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 
 import java.util.Date;
@@ -15,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "events")
 public class Event {
     @Id

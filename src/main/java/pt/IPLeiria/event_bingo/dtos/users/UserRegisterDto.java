@@ -3,8 +3,12 @@ package pt.IPLeiria.event_bingo.dtos.users;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class UserRegisterDto {
     @NotBlank(message = "Name is required")
