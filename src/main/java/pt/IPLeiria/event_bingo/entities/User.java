@@ -1,17 +1,17 @@
 package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 
 import java.util.List;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "users")
 public class User {
     @Id

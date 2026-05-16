@@ -35,18 +35,17 @@ public class UserService {
     }
 
     public User get(Long id){
-
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
     }
 
     public User update(UserRegisterDto request, Long id){
         var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
-        if (userRepository.existsByEmail(request.getEmail()) && !user.getEmail().equals(request.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User's email already exists!");
         }
 
-        if (userRepository.existsByUsername(request.getUsername()) && !user.getUsername().equals(request.getUsername())) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException("User's username already exists!");
         }
 
@@ -62,6 +61,14 @@ public class UserService {
 
     public User patch(UserPatchDto request, Long id) {
         var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("User's email already exists!");
+        }
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new BadRequestException("User's username already exists!");
+        }
 
         if (request.getEmail() != null)
             user.setEmail(request.getEmail());

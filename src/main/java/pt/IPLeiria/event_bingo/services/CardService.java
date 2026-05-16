@@ -66,7 +66,12 @@ public class CardService {
 
         card.setApproved(false);
 
-        card.setEvents(request.getEvents(), eventRepository);
+        card.setEventsWithSignature(request.getEvents()
+                .stream()
+                .map(x ->
+                        eventRepository.findById(x).
+                                orElseThrow(() -> new BadRequestException("Event not found: " + x)))
+                .toList());
 
         if (cardRepository.existsByEventsSignature(card.getEventsSignature())){
             throw new BadRequestException("Card already exists! Try to change events order or use another events!");
@@ -88,7 +93,12 @@ public class CardService {
         card.setRows(request.getRows());
         card.setCols(request.getCols());
 
-        card.setEvents(request.getEvents(), eventRepository);
+        card.setEventsWithSignature(request.getEvents()
+                .stream()
+                .map(x ->
+                        eventRepository.findById(x).
+                                orElseThrow(() -> new BadRequestException("Event not found: " + x)))
+                .toList());
 
         card.setLine_prize(request.getLine_prize());
         card.setPrice(request.getPrice());
@@ -120,7 +130,12 @@ public class CardService {
             card.setCols(request.getCols());
 
         if (request.getEvents() != null)
-            card.setEvents(request.getEvents(), eventRepository);
+            card.setEventsWithSignature(request.getEvents()
+                    .stream()
+                    .map(x ->
+                            eventRepository.findById(x).
+                                    orElseThrow(() -> new BadRequestException("Event not found: " + x)))
+                    .toList());
 
         if (request.getLine_prize() != null)
             card.setLine_prize(request.getLine_prize());
@@ -205,7 +220,7 @@ public class CardService {
 
             do {
                 Collections.shuffle(shuffled);
-                card.setEvents(shuffled.stream().limit((long) request.getCols() * request.getRows()).collect(Collectors.toList()));
+                card.setEventsWithSignature(shuffled.stream().limit((long) request.getCols() * request.getRows()).collect(Collectors.toList()));
                 tries++;
                 if (tries > 5) break;
             } while (cardRepository.existsByEventsSignature(card.getEventsSignature()));
