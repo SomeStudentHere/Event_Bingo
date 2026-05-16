@@ -2,13 +2,17 @@ package pt.IPLeiria.event_bingo.services;
 
 import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.Event;
+import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
+import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
+import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -16,10 +20,12 @@ import java.util.List;
 public class CardCheckWinService {
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
-    public CardCheckWinService(CardRepository cardRepository, UserRepository userRepository) {
+    public CardCheckWinService(CardRepository cardRepository, UserRepository userRepository, TransactionRepository transactionRepository) {
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public void updateCardsAfterEventStatusChange(Event event) {
@@ -78,6 +84,14 @@ public class CardCheckWinService {
                 cardRepository.save(card);
                 user.setBalance(user.getBalance() + amount);
                 userRepository.save(user);
+
+                var transaction = new Transaction();
+                transaction.setAmount(amount);
+                transaction.setDate(new Date());
+                transaction.setType(TransactionType.PRIZE);
+                transaction.setUser(user);
+
+                transactionRepository.save(transaction);
             }
         }
     }

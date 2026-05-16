@@ -67,7 +67,7 @@ public class UserControllerTest {
 
 
     @Test
-    public void enpointsWillReturnOkOnSuccess() throws Exception {
+    public void endpointsWillReturnOkOnSuccess() throws Exception {
         given(userService.list()).willReturn(new ArrayList<>());
         given(userService.get(ArgumentMatchers.any())).willReturn(user);
         given(userService.update(ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(user);

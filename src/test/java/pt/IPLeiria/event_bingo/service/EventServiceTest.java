@@ -14,7 +14,6 @@ import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 import pt.IPLeiria.event_bingo.services.EventService;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +51,6 @@ public class EventServiceTest {
     public void testDeleteEventFailCards(){
         when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event));
 
-        Assertions.assertThrows(BadRequestException.class, () -> eventService.delete(0l));
+        Assertions.assertThrows(BadRequestException.class, () -> eventService.delete(0L));
     }
 }
