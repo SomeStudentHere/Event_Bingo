@@ -9,12 +9,15 @@ import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardRequestDto;
 import pt.IPLeiria.event_bingo.entities.Card;
+import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
+import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.CardMapper;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
+import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 public class CardService {
 
     private final JwtService jwtService;
+    private final TransactionRepository transactionRepository;
     private boolean running = false;
     private Double progress = null;
 
@@ -34,12 +38,13 @@ public class CardService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService) {
+    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService, TransactionRepository transactionRepository) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.transactionRepository = transactionRepository;
     }
 
     public List<Card> list() {
@@ -168,6 +173,15 @@ public class CardService {
             cardRepository.save(card);
         } catch (DataIntegrityViolationException ex){
             throw new BadRequestException("Can't buy this card! It's already yours!");
+        }
+        finally {
+            Transaction transaction = new Transaction();
+
+            transaction.setUser(user);
+            transaction.setAmount(card.getPrice());
+            transaction.setType(TransactionType.CARD);
+            transaction.setDate(new Date());
+            transactionRepository.save(transaction);
         }
     }
 
