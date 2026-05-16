@@ -10,7 +10,6 @@ import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,9 +35,7 @@ public class TransactionService {
     }
 
     public void create(MoneyDto moneyDto, String token) {
-        var user = userRepository.findByUsername(jwtService.extractUsername(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
-
-        if (moneyDto.getCardNumber().startsWith("999")){
+        if (moneyDto.getCardNumber().startsWith("9999")){
             throw new BadRequestException("Invalid card");
         }
 
@@ -52,6 +49,8 @@ public class TransactionService {
         if (dateCard.before(date)) {
             throw new BadRequestException("Invalid card");
         }
+
+        var user = userRepository.findByUsername(jwtService.extractUsername(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
 
 
         var transaction = new Transaction();
