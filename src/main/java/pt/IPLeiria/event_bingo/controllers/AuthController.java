@@ -12,8 +12,6 @@ import pt.IPLeiria.event_bingo.dtos.auth.LoginResponseDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.services.UserService;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
