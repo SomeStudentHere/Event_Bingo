@@ -69,7 +69,7 @@ public class CardService {
         card.setRows(request.getRows());
         card.setCols(request.getCols());
 
-        card.setApproved(false);
+        card.setApproved(true);
 
         card.setEventsWithSignature(request.getEvents()
                 .stream()
