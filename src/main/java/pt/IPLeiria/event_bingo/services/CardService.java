@@ -64,7 +64,7 @@ public class CardService {
         card.setRows(request.getRows());
         card.setCols(request.getCols());
 
-        card.setApproved(false);
+        card.setApproved(true);
 
         card.setEvents(request.getEvents(), eventRepository);
 
