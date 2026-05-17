@@ -2,6 +2,7 @@ package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 
 import java.util.List;
@@ -30,6 +31,9 @@ public class User {
     @Column(nullable = false)
     @Enumerated()
     private UserStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
 
 
     @Column

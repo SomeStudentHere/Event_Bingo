@@ -51,7 +51,7 @@ public class CardCheckWinService {
 
         Event[][] grid = new Event[rows][cols];
 
-        for (int i = 0; i < events.size(); i++) {
+        for (int i = 0; i < rows * cols && i < events.size(); i++) {
             grid[i / cols][i % cols] = events.get(i);
         }
 
@@ -61,7 +61,7 @@ public class CardCheckWinService {
             boolean fullLine = true;
 
             for (int j = 0; j < cols; j++) {
-                if (grid[i][j].getStatus() != EventStatus.Win) {
+                if (grid[i][j] == null || grid[i][j].getStatus() != EventStatus.Win) {
                     fullLine = false;
                     break;
                 }

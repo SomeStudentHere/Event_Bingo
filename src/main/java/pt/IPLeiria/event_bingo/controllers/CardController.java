@@ -2,6 +2,8 @@ package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
@@ -9,9 +11,12 @@ import pt.IPLeiria.event_bingo.dtos.cards.CardDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardRequestDto;
 import pt.IPLeiria.event_bingo.entities.Card;
+import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.mapper.CardMapper;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import pt.IPLeiria.event_bingo.services.CardService;
+import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.util.*;
 
@@ -21,21 +26,34 @@ public class CardController {
     private final CardMapper cardMapper;
     private final CardRepository cardRepository;
     private final CardService cardService;
+    private final UserService userService;
 
-    public CardController(CardMapper cardMapper, CardRepository cardRepository, CardService cardService) {
+    public CardController(CardMapper cardMapper, CardRepository cardRepository, CardService cardService, UserService userService) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.cardService = cardService;
+        this.userService = userService;
     }
 
     @GetMapping
-    public List<CardDto> getCards(){
-        return cardService.list()
-                .stream()
-                .map(cardMapper::toDto)
-                .toList();
+    public ResponseEntity<List<CardDto>> getCards(Authentication authentication) {
+
+        User user = null;
+
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User u) {
+            user = u;
+        }
+
+        var cards = cardService.list(user);
+
+        return ResponseEntity.ok(
+                cards.stream()
+                        .map(cardMapper::toDto)
+                        .toList()
+        );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CardDto> createCard(@RequestBody CardRequestDto request, UriComponentsBuilder uriBuilder){
 
@@ -46,6 +64,7 @@ public class CardController {
         return ResponseEntity.created(uriBuilder.path("/cards/{id}").buildAndExpand(cardDto.getId()).toUri()).body(cardDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CardDto> updateCard(@PathVariable Long id, @Valid @RequestBody CardRequestDto request){
 
@@ -56,6 +75,7 @@ public class CardController {
         return ResponseEntity.ok(cardDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<CardDto> patchCard(@PathVariable Long id, @Valid @RequestBody CardPatchDto request){
 
@@ -66,6 +86,7 @@ public class CardController {
         return ResponseEntity.ok(cardDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/buy")
     public ResponseEntity<?> buyCard(@PathVariable Long id, @RequestHeader("Authorization") String token){
         cardService.buy(id, token);
@@ -73,6 +94,7 @@ public class CardController {
         return ResponseEntity.ok(Map.of("message", "Card bought successfully!"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteCard(@PathVariable Long id){
         cardService.delete(id);
@@ -80,6 +102,7 @@ public class CardController {
         return ResponseEntity.ok(Map.of("message", "Card deleted successfully!"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/auto")
     public ResponseEntity<?> createCardsAuto(@Valid @RequestBody CardBuilderDto request){
 
@@ -96,6 +119,7 @@ public class CardController {
         return ResponseEntity.accepted().body(Map.of("message", "Process started!"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/auto")
     public ResponseEntity<?> getCardsAuto(){
 

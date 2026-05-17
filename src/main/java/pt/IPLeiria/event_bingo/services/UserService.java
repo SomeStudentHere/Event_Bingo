@@ -6,6 +6,7 @@ import pt.IPLeiria.event_bingo.dtos.auth.LoginRequestDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
@@ -85,6 +86,9 @@ public class UserService {
         if (request.getAvatar() != null){
             user.setAvatar(request.getAvatar());
         }
+        if (request.getUserRole() != null){
+            user.setRole(request.getUserRole());
+        }
 
         userRepository.save(user);
 
@@ -123,6 +127,7 @@ public class UserService {
         user.setBalance(0f);
         user.setStatus(UserStatus.ACTIVE);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(UserRole.USER);
         userRepository.save(user);
 
         String token = jwtService.generateToken(user.getUsername());

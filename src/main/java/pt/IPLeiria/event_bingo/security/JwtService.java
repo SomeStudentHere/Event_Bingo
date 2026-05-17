@@ -29,11 +29,16 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        if (!token.startsWith("Bearer ")){
-            throw new BadRequestException("Token is invalid! Missing Bearer Token prefix!");
+
+        if (token == null) {
+            throw new BadRequestException("Token is null");
         }
 
-        token = token.substring(7);
+        token = token.trim();
+
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
 
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

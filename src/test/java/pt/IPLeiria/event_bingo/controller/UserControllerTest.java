@@ -18,6 +18,7 @@ import pt.IPLeiria.event_bingo.dtos.users.UserDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.security.JwtService;
@@ -55,13 +56,14 @@ public class UserControllerTest {
             .email("a@mail.com")
             .password("test")
             .balance(0)
+            .role(UserRole.USER)
             .avatar(null)
             .cards(new ArrayList<>())
             .status(UserStatus.ACTIVE)
             .build();
 
-    UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getFull_name(), user.getAvatar());
-    UserAllDto userAllDto = new UserAllDto(user.getId(), user.getFull_name(), user.getUsername(), user.getEmail(), user.getBalance(), user.getStatus(), user.getAvatar(), new ArrayList<>());
+    UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getFull_name(), user.getAvatar(), user.getRole());
+    UserAllDto userAllDto = new UserAllDto(user.getId(), user.getFull_name(), user.getUsername(), user.getEmail(), user.getBalance(), user.getStatus(), user.getAvatar(), new ArrayList<>(), user.getRole());
     UserPatchDto userPatchDto = new UserPatchDto();
     UserRegisterDto userRegisterDto = new UserRegisterDto(user.getFull_name(), user.getUsername(), user.getEmail(), user.getPassword(), user.getAvatar());
 
