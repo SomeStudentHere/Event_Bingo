@@ -53,6 +53,10 @@ public class TransactionService {
         var user = userRepository.findByUsername(jwtService.extractUsername(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
 
 
+        if (moneyDto.getType() == TransactionType.WITHDRAW && user.getBalance() < moneyDto.getAmount()) {
+            throw new BadRequestException("Insufficient balance");
+        }
+
         var transaction = new Transaction();
         transaction.setAmount(moneyDto.getAmount());
         transaction.setDate(date);

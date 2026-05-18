@@ -8,12 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
-import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
-import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.TransactionService;
@@ -26,8 +24,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
-    @Mock
-    private TransactionRepository transactionRepository;
     @Mock
     private UserRepository userRepository;
 
@@ -89,5 +85,14 @@ public class TransactionServiceTest {
 
         Assertions.assertThrows(BadRequestException.class,
                 () -> transactionService.create(moneyDtoDeposit, "<token>"));
+    }
+
+    @Test
+    void createTransactionFailInsufficientBalance() {
+        user.setBalance(0);
+        when(jwtService.extractUsername(anyString())).thenReturn("test");
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        Assertions.assertThrows(BadRequestException.class, () -> transactionService.create(moneyDtoWithdraw, "<token>"));
     }
 }
