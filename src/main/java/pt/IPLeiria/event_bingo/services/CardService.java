@@ -4,14 +4,17 @@ import jakarta.transaction.Transactional;
 import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardRequestDto;
 import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.Transaction;
+import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.CardMapper;
@@ -47,12 +50,13 @@ public class CardService {
         this.transactionRepository = transactionRepository;
     }
 
-    public List<Card> list() {
-        //todo
-        //if user_role = user
-        //return cardRepository.findCardsByApprovedIs(true);
+    public List<Card> list(User user) {
 
-        return cardRepository.findAll();
+        if (user != null && user.getRole() == UserRole.ADMIN) {
+            return cardRepository.findAll();
+        }
+
+        return cardRepository.findCardsByApprovedIs(true);
     }
 
     public Card create(CardRequestDto request){

@@ -3,6 +3,7 @@ package pt.IPLeiria.event_bingo.dtos.users;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 
 @AllArgsConstructor
 @Getter
@@ -12,4 +13,5 @@ public class UserDto {
     private String username;
     private String full_name;
     private String avatar;
+    private UserRole role;
 }

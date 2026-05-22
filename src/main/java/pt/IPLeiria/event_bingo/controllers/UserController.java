@@ -3,12 +3,15 @@ package pt.IPLeiria.event_bingo.controllers;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.IPLeiria.event_bingo.dtos.users.UserAllDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.InternalErrorException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.security.JwtService;
@@ -32,28 +35,44 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getUsers(){
+    public List<?> getUsers(Authentication authentication) {
+
+        boolean isAdmin = false;
+
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
+
+            User user = (User) authentication.getPrincipal();
+            isAdmin = user.getRole() == UserRole.ADMIN;
+        }
+
+        boolean finalIsAdmin = isAdmin;
+
         return userService.list()
                 .stream()
-                .map(userMapper::toDto)
+                .map(user -> {
+                    if (finalIsAdmin) {
+                        return userMapper.toAllDto(user);
+                    }
+                    return userMapper.toDto(user);
+                })
                 .toList();
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<UserDto> getUser(HttpServletResponse response, @PathVariable Long id, @RequestHeader("Authorization") String token){
-        var user = userService.get(id);
+    public ResponseEntity<?> getUser(@PathVariable Long id, Authentication authentication) {
 
-        if (!token.isEmpty()){
-            String username = jwtService.extractUsername(token);
-            if (username.equals(user.getUsername())){
-                try {
-                    response.sendRedirect("/users/me");
-                } catch (IOException e) {
-                    throw new InternalErrorException("Had a problem redirecting to the user page!");
-                } finally {
-                    return null;
-                }
-            }
+        User user = userService.get(id);
+
+        boolean isAdmin = authentication != null
+                && authentication.getPrincipal() instanceof User authUser
+                && authUser.getRole() == UserRole.ADMIN;
+
+        boolean isOwner = authentication != null
+                && authentication.getPrincipal() instanceof User authUser
+                && authUser.getUsername().equals(user.getUsername());
+
+        if (isAdmin || isOwner) {
+            return ResponseEntity.ok(userMapper.toAllDto(user));
         }
 
         return ResponseEntity.ok(userMapper.toDto(user));
@@ -69,6 +88,7 @@ public class UserController {
         return ResponseEntity.created(uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri()).body(userDto);
     }*/
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
         var user = userService.update(request, id);
@@ -76,6 +96,7 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("{id}")
     public ResponseEntity<UserAllDto> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto request){
         var user =  userService.patch(request, id);
@@ -83,6 +104,7 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toAllDto(user));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         userService.delete(id);
@@ -91,11 +113,9 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserAllDto> getMe(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<UserAllDto> getMe(Authentication authentication) {
 
-        String username = jwtService.extractUsername(token);
-
-        User user = userService.findByUsername(username);
+        User user = (User) authentication.getPrincipal();
 
         return ResponseEntity.ok(userMapper.toAllDto(user));
     }

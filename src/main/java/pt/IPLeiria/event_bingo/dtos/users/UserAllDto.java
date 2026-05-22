@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import pt.IPLeiria.event_bingo.dtos.cards.CardDto;
+import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 
 import java.util.List;
@@ -20,4 +21,5 @@ public class UserAllDto {
     private UserStatus status;
     private String avatar;
     private List<CardDto> cards;
+    private UserRole role;
 }

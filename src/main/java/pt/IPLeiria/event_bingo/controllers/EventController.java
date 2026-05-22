@@ -2,6 +2,7 @@ package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import pt.IPLeiria.event_bingo.dtos.events.EventDto;
@@ -26,6 +27,7 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<EventDto> getEvents(){
         return eventService.list()
@@ -34,6 +36,7 @@ public class EventController {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<EventDto> createEvent(@RequestBody EventRequestDto request, UriComponentsBuilder uriBuilder){
 
@@ -44,6 +47,7 @@ public class EventController {
         return ResponseEntity.created(uriBuilder.path("/events/{id}").buildAndExpand(eventDto.getId()).toUri()).body(eventDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("{id}")
     public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
 
@@ -54,6 +58,7 @@ public class EventController {
         return ResponseEntity.ok(eventDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("{id}")
     public ResponseEntity<EventDto> patchEvent(@PathVariable Long id, @Valid @RequestBody EventPatchDto request) {
 
@@ -64,7 +69,7 @@ public class EventController {
         return ResponseEntity.ok(eventDto);
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long id){
 

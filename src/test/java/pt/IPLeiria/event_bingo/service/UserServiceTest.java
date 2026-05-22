@@ -58,8 +58,8 @@ public class UserServiceTest {
             .status(UserStatus.ACTIVE)
             .build();
 
-    UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getFull_name(), user.getAvatar());
-    UserAllDto userAllDto = new UserAllDto(user.getId(), user.getFull_name(), user.getUsername(), user.getEmail(), user.getBalance(), user.getStatus(), user.getAvatar(), new ArrayList<>());
+    UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getFull_name(), user.getAvatar(), user.getRole());
+    UserAllDto userAllDto = new UserAllDto(user.getId(), user.getFull_name(), user.getUsername(), user.getEmail(), user.getBalance(), user.getStatus(), user.getAvatar(), new ArrayList<>(), user.getRole());
     UserPatchDto userPatchDto = new UserPatchDto();
     UserRegisterDto userRegisterDto = new UserRegisterDto(user.getFull_name(), user.getUsername(), user.getEmail(), user.getPassword(), user.getAvatar());
     LoginRequestDto loginRequestDto = new LoginRequestDto(user.getUsername(), user.getPassword());
