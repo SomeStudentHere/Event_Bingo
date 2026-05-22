@@ -38,11 +38,14 @@ public class SecurityConfig {
 
                         .requestMatchers("/transactions/**").permitAll()
 
-                        .requestMatchers("/swagger-ui/**").permitAll()
-
-                        .requestMatchers("/v3/**").permitAll()
-
-                        .requestMatchers("/swagger/**").permitAll()
+                        .requestMatchers(
+                                "/v1/api/get-token",
+                                "/swagger-ui.html",
+                                "/swagger-ui/*",
+                                "/swagger",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**").permitAll()
 
 
 
