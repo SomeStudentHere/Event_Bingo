@@ -20,4 +20,5 @@ public class CardDto {
     private double price;
     private boolean approved;
     private List<EventDto> events;
+    private boolean terminated;
 }

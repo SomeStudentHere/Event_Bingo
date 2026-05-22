@@ -38,6 +38,12 @@ public class SecurityConfig {
 
                         .requestMatchers("/transactions/**").permitAll()
 
+                        .requestMatchers("/swagger-ui/**").permitAll()
+
+                        .requestMatchers("/v3/**").permitAll()
+
+                        .requestMatchers("/swagger/**").permitAll()
+
 
 
                         //se futuramente adicionar-mos uma pasta admin
