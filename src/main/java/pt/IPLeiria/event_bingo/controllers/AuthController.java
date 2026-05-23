@@ -1,5 +1,6 @@
 package pt.IPLeiria.event_bingo.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ public class AuthController {
         this.userService = userService;
     }
 
+    @SecurityRequirements()
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
 
@@ -29,6 +31,7 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponseDto(token));
     }
 
+    @SecurityRequirements()
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRegisterDto request){
         var token = userService.register(request);
