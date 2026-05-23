@@ -60,14 +60,14 @@ public class UserService {
         return user;
     }
 
-    public User patch(UserPatchDto request, Long id) {
+    public User patch(UserPatchDto request, Long id, User loggedUser) {
         var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User's email already exists!");
         }
 
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (request.getUsername() != null && userRepository.existsByUsername(request.getUsername())) {
             throw new BadRequestException("User's username already exists!");
         }
 
@@ -81,13 +81,18 @@ public class UserService {
             user.setFull_name(request.getFull_name());
         if (request.getStatus() != null)
             user.setStatus(request.getStatus());
-        if (request.getBalance() != null)
-            user.setBalance(user.getBalance() + request.getBalance());
         if (request.getAvatar() != null){
             user.setAvatar(request.getAvatar());
         }
-        if (request.getUserRole() != null){
-            user.setRole(request.getUserRole());
+
+        // ADMIN ONLY
+        if (loggedUser.getRole() == UserRole.ADMIN) {
+
+            if (request.getBalance() != null)
+                user.setBalance(request.getBalance());
+
+            if (request.getUserRole() != null)
+                user.setRole(request.getUserRole());
         }
 
         userRepository.save(user);
@@ -110,7 +115,7 @@ public class UserService {
             throw new BadRequestException("Invalid credentials");
         }
 
-        return jwtService.generateToken(user.getUsername());
+        return jwtService.generateToken(user.getId());
     }
 
 
@@ -130,7 +135,7 @@ public class UserService {
         user.setRole(UserRole.USER);
         userRepository.save(user);
 
-        String token = jwtService.generateToken(user.getUsername());
+        String token = jwtService.generateToken(user.getId());
 
         return token;
     }

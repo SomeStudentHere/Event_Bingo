@@ -54,7 +54,7 @@ public class TransactionService {
             throw new BadRequestException("Invalid card");
         }
 
-        var user = userRepository.findByUsername(jwtService.extractUsername(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
+        var user = userRepository.findById(jwtService.extractUserId(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
 
 
         if (moneyDto.getType() == TransactionType.WITHDRAW && user.getBalance() < moneyDto.getAmount()) {

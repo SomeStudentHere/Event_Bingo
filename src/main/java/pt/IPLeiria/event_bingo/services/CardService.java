@@ -161,7 +161,7 @@ public class CardService {
     public void buy(Long id, String token){
         var card = cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card not found: " + id));
 
-        var user = userRepository.findByUsername(jwtService.extractUsername(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
+        var user = userRepository.findById(jwtService.extractUserId(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
 
         if (user.getBalance() - card.getPrice() < 0){
             throw new BadRequestException("Insufficient balance to buy this card!");
