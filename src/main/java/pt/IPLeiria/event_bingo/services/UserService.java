@@ -32,15 +32,29 @@ public class UserService {
     }
 
     public List<User> list() {
-        return userRepository.findAll();
+        return userRepository.findAllByStatus(UserStatus.ACTIVE);
+    }
+
+    public List<User> listAll() {
+        return userRepository.findAllByStatusIn(List.of(UserStatus.ACTIVE, UserStatus.SUSPENDED));
     }
 
     public User get(Long id){
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+
+        if (user.getStatus().equals(UserStatus.SUSPENDED)) {
+            throw new BadRequestException("User is Suspended");
+        }
+
+        if (user.getStatus().equals(UserStatus.DELETED)) {
+            throw new NotFoundException("User not Found");
+        }
+
+        return user;
     }
 
     public User update(UserRegisterDto request, Long id){
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+        var user = get(id);
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User's email already exists!");
@@ -61,7 +75,7 @@ public class UserService {
     }
 
     public User patch(UserPatchDto request, Long id, User loggedUser) {
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+        var user = get(id);
 
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User's email already exists!");
@@ -101,9 +115,11 @@ public class UserService {
     }
 
     public void delete(Long id){
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
+        var user = get(id);
 
-        userRepository.delete(user);
+        user.setStatus(UserStatus.DELETED);
+
+        userRepository.save(user);
     }
 
     public String login(LoginRequestDto request) {
@@ -141,7 +157,21 @@ public class UserService {
     }
 
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username)
+        var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+
+        validateUser(user);
+
+        return user;
+    }
+
+    private void validateUser(User user){
+        if (user.getStatus().equals(UserStatus.SUSPENDED)) {
+            throw new BadRequestException("User is Suspended");
+        }
+
+        if (user.getStatus().equals(UserStatus.DELETED)) {
+            throw new NotFoundException("User not Found");
+        }
     }
 }

@@ -33,6 +33,7 @@ public class CardService {
 
     private final JwtService jwtService;
     private final TransactionRepository transactionRepository;
+    private final UserService userService;
     private boolean running = false;
     private Double progress = null;
 
@@ -41,13 +42,14 @@ public class CardService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService, TransactionRepository transactionRepository) {
+    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService, TransactionRepository transactionRepository, UserService userService) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.transactionRepository = transactionRepository;
+        this.userService = userService;
     }
 
     public List<Card> list(User user) {
@@ -161,7 +163,7 @@ public class CardService {
     public void buy(Long id, String token){
         var card = cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card not found: " + id));
 
-        var user = userRepository.findById(jwtService.extractUserId(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
+        var user = userService.get(jwtService.extractUserId(token));
 
         if (user.getBalance() - card.getPrice() < 0){
             throw new BadRequestException("Insufficient balance to buy this card!");

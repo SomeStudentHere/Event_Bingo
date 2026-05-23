@@ -20,11 +20,13 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public TransactionService(TransactionRepository transactionRepository, JwtService jwtService, UserRepository userRepository) {
+    public TransactionService(TransactionRepository transactionRepository, JwtService jwtService, UserRepository userRepository, UserService userService) {
         this.transactionRepository = transactionRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public List<Transaction> list(User user) {
@@ -54,7 +56,7 @@ public class TransactionService {
             throw new BadRequestException("Invalid card");
         }
 
-        var user = userRepository.findById(jwtService.extractUserId(token)).orElseThrow(() -> new NotFoundException("User in token invalid"));
+        var user = userService.get(jwtService.extractUserId(token));
 
 
         if (moneyDto.getType() == TransactionType.WITHDRAW && user.getBalance() < moneyDto.getAmount()) {

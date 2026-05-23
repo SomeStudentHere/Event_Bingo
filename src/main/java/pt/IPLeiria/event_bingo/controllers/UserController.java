@@ -26,12 +26,10 @@ public class UserController {
 
     private final UserMapper userMapper;
     private final UserService userService;
-    private final JwtService jwtService;
 
     public UserController(UserMapper userMapper, UserService userService, JwtService jwtService) {
         this.userMapper = userMapper;
         this.userService = userService;
-        this.jwtService = jwtService;
     }
 
     @GetMapping
@@ -45,16 +43,16 @@ public class UserController {
             isAdmin = user.getRole() == UserRole.ADMIN;
         }
 
-        boolean finalIsAdmin = isAdmin;
+        if (isAdmin) {
+            return userService.listAll()
+                    .stream()
+                    .map(userMapper::toAllDto)
+                    .toList();
+        }
 
         return userService.list()
                 .stream()
-                .map(user -> {
-                    if (finalIsAdmin) {
-                        return userMapper.toAllDto(user);
-                    }
-                    return userMapper.toDto(user);
-                })
+                .map(userMapper::toDto)
                 .toList();
     }
 
@@ -117,7 +115,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserAllDto> getMe(Authentication authentication) {
 
-        User user = (User) authentication.getPrincipal();
+        User user = userService.get(((User) authentication.getPrincipal()).getId());
 
         return ResponseEntity.ok(userMapper.toAllDto(user));
     }
