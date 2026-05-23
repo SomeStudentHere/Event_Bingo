@@ -6,6 +6,7 @@ import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
+import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,8 @@ public class CardCheckWinService {
             double amount = bingo? card.getBingo_prize(): card.getLine_prize();
 
             for (User user : card.getUsers()) {
+                if (user.getStatus()!= UserStatus.ACTIVE)
+                    continue;
                 card.setTerminated(true);
                 cardRepository.save(card);
                 user.setBalance(user.getBalance() + amount);
