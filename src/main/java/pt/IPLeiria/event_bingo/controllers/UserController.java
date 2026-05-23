@@ -88,7 +88,7 @@ public class UserController {
         return ResponseEntity.created(uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri()).body(userDto);
     }*/
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     @PutMapping("{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
         var user = userService.update(request, id);
@@ -96,16 +96,18 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     @PatchMapping("{id}")
-    public ResponseEntity<UserAllDto> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto request){
-        var user =  userService.patch(request, id);
+    public ResponseEntity<UserAllDto> patchUser(Authentication authentication, @PathVariable Long id, @Valid @RequestBody UserPatchDto request){
+
+        User loggedUser = (User) authentication.getPrincipal();
+
+        var user = userService.patch(request, id, loggedUser);
 
         return ResponseEntity.ok(userMapper.toAllDto(user));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         userService.delete(id);
 

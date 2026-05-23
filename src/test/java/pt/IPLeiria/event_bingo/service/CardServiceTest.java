@@ -18,6 +18,7 @@ import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
+import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.CardService;
@@ -41,6 +42,9 @@ public class CardServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @Mock
     private JwtService jwtService;
@@ -165,8 +169,8 @@ public class CardServiceTest {
         user.setBalance(100);
 
         when(cardRepository.findById(anyLong())).thenReturn(Optional.of(card));
-        when(jwtService.extractUsername(anyString())).thenReturn("test");
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(jwtService.extractUserId(anyString())).thenReturn(1L);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         when(userRepository.save(any())).thenReturn(user);
         when(cardRepository.save(any())).thenReturn(card);
@@ -182,8 +186,8 @@ public class CardServiceTest {
     @Test
     public  void testCardServiceBuyFailMoney(){
         when(cardRepository.findById(anyLong())).thenReturn(Optional.of(card));
-        when(jwtService.extractUsername(anyString())).thenReturn("test");
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(jwtService.extractUserId(anyString())).thenReturn(1L);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         Assertions.assertThrows(BadRequestException.class, () -> cardService.buy(0L, "Test"));
     }

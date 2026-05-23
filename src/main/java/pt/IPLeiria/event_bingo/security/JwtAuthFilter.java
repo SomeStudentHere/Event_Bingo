@@ -42,9 +42,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        String username = jwtService.extractUsername(token);
+        Long userId = jwtService.extractUserId(token);
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findById(userId)
                 .orElse(null);
 
         if (user != null) {

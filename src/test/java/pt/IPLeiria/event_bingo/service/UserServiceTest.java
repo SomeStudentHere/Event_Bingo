@@ -106,7 +106,7 @@ public class UserServiceTest {
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(user.getPassword(), user.getPassword())).thenReturn(true);
-        when(jwtService.generateToken(user.getUsername())).thenReturn("token");
+        when(jwtService.generateToken(user.getId())).thenReturn("token");
 
         AtomicReference<String> reference = new AtomicReference<>();
 
@@ -141,7 +141,7 @@ public class UserServiceTest {
         when(userMapper.toEntity(userRegisterDto)).thenReturn(user);
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userRepository.save(user)).thenReturn(user);
-        when(jwtService.generateToken(user.getUsername())).thenReturn("token");
+        when(jwtService.generateToken(user.getId())).thenReturn("token");
 
 
         AtomicReference<String> reference = new AtomicReference<>();

@@ -19,16 +19,16 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    public String generateToken(String username) {
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public Long extractUserId(String token) {
 
         if (token == null) {
             throw new BadRequestException("Token is null");
@@ -40,11 +40,13 @@ public class JwtService {
             token = token.substring(7).trim();
         }
 
-        return Jwts.parserBuilder()
+        String subject = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+
+        return Long.parseLong(subject);
     }
 }

@@ -73,14 +73,14 @@ public class UserControllerTest {
         given(userService.list()).willReturn(new ArrayList<>());
         given(userService.get(ArgumentMatchers.any())).willReturn(user);
         given(userService.update(ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(user);
-        given(userService.patch(ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(user);
+        given(userService.patch(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(user);
 
         given(userService.findByUsername(ArgumentMatchers.any())).willReturn(user);
 
         given(userMapper.toDto(ArgumentMatchers.any())).willReturn(userDto);
         given(userMapper.toAllDto(ArgumentMatchers.any())).willReturn(userAllDto);
 
-        given(jwtService.extractUsername(ArgumentMatchers.any())).willReturn("");
+        given(jwtService.extractUserId(ArgumentMatchers.any())).willReturn(1L);
 
         ResultActions response = mockMvc.perform(get("/users")
                 .contentType(MediaType.APPLICATION_JSON));
@@ -116,7 +116,7 @@ public class UserControllerTest {
     @Test
     public void getUserRedirect()  throws Exception {
         given(userService.get(ArgumentMatchers.any())).willReturn(user);
-        given(jwtService.extractUsername(ArgumentMatchers.any())).willReturn(user.getUsername());
+        given(jwtService.extractUserId(ArgumentMatchers.any())).willReturn(user.getId());
 
         ResultActions response = mockMvc.perform(get("/users/" + user.getId())
                         .header("Authorization", "<token>"));
