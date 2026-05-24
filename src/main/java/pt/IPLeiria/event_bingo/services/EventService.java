@@ -25,6 +25,10 @@ public class EventService {
         this.cardCheckWinService = cardCheckWinService;
     }
 
+    public Event get(Long id) {
+        return eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event " + id + " not Found"));
+    }
+
     public List<Event> list() {
         return eventRepository.findAll();
     }
@@ -40,7 +44,7 @@ public class EventService {
     }
 
     public Event update(EventRequestDto request, Long id){
-        var event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event " + id + " not Found"));
+        var event = get(id);
 
         event.setSport(request.getSport());
         event.setDate(request.getDate());
@@ -54,7 +58,7 @@ public class EventService {
     }
 
     public Event patch(EventPatchDto request, Long id){
-        var event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event " + id + " not Found"));
+        var event = get(id);
 
         if (request.getSport() != null)
             event.setSport(request.getSport());
