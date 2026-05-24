@@ -78,14 +78,6 @@ public class UserService {
     public User patch(UserPatchDto request, Long id, User loggedUser) {
         var user = get(id);
 
-        if (request.getEmail() != null && request.getEmail().equals(user.getEmail())) {
-            throw new BadRequestException("Email is the current user's email!");
-        }
-
-        if (request.getUsername() != null && request.getUsername().equals(user.getUsername())) {
-            throw new BadRequestException("Username is the current user's username!");
-        }
-
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User's email already exists!");
         }
@@ -160,9 +152,7 @@ public class UserService {
         user.setRole(UserRole.USER);
         userRepository.save(user);
 
-        String token = jwtService.generateToken(user.getId());
-
-        return token;
+        return jwtService.generateToken(user.getId());
     }
 
     public User findByUsername(String username) {
