@@ -6,10 +6,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
-import pt.IPLeiria.event_bingo.dtos.transactions.TransactionDto;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
+import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
 import pt.IPLeiria.event_bingo.services.TransactionService;
 
@@ -29,14 +29,23 @@ public class TransactionController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public List<TransactionDto> getTransactions(Authentication authentication) {
+    public List<?> getTransactions(Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();
 
-        return transactionService.list(user)
-                .stream()
-                .map(transactionMapper::toDto)
-                .toList();
+        if (user == null){
+            throw new BadRequestException("User is not logged in!");
+        }
+
+        if (user.getRole() == UserRole.ADMIN) {
+            return transactionService.adminList();
+        }
+        else {
+            return transactionService.list(user)
+                    .stream()
+                    .map(transactionMapper::toDto)
+                    .toList();
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
