@@ -3,6 +3,7 @@ package pt.IPLeiria.event_bingo.controller;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -16,6 +17,9 @@ import pt.IPLeiria.event_bingo.controllers.AuthController;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
+import pt.IPLeiria.event_bingo.security.JwtAuthFilter;
+import pt.IPLeiria.event_bingo.security.JwtService;
+import pt.IPLeiria.event_bingo.services.CardService;
 import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
@@ -24,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(controllers = AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ExtendWith(MockitoExtension.class)
 public class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -37,6 +40,12 @@ public class AuthControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private JwtAuthFilter jwtAuthFilter;
 
     UserRegisterDto userRegister = new UserRegisterDto("test", "test", "a@mail.com", "test", null);
 

@@ -15,6 +15,8 @@ import pt.IPLeiria.event_bingo.controllers.TransactionController;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
+import pt.IPLeiria.event_bingo.security.JwtAuthFilter;
+import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.TransactionService;
 import tools.jackson.databind.ObjectMapper;
 
@@ -34,6 +36,12 @@ public class TransactionControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private JwtAuthFilter jwtAuthFilter;
 
     @Test
     public void willReturnSuccessfulMessage() throws Exception{

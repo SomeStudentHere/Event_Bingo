@@ -16,6 +16,7 @@ import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.TransactionService;
+import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -34,6 +35,9 @@ public class TransactionServiceTest {
 
     @Mock
     private TransactionRepository transactionRepository;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private TransactionService transactionService;
@@ -68,7 +72,7 @@ public class TransactionServiceTest {
     @Test
     void createTransaction() {
         when(jwtService.extractUserId(anyString())).thenReturn(1L);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userService.get(anyLong())).thenReturn(user);
 
         Assertions.assertDoesNotThrow(() -> transactionService.create(moneyDtoDeposit, "<token>"));
     }
@@ -96,7 +100,7 @@ public class TransactionServiceTest {
     void createTransactionFailInsufficientBalance() {
         user.setBalance(0);
         when(jwtService.extractUserId(anyString())).thenReturn(1L);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userService.get(anyLong())).thenReturn(user);
 
         Assertions.assertThrows(BadRequestException.class, () -> transactionService.create(moneyDtoWithdraw, "<token>"));
     }
