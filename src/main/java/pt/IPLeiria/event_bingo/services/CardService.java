@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
@@ -50,6 +49,10 @@ public class CardService {
         this.jwtService = jwtService;
         this.transactionRepository = transactionRepository;
         this.userService = userService;
+    }
+
+    public Card get(Long id) {
+        return cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card " + id + " not Found"));
     }
 
     public List<Card> list(User user) {
@@ -98,7 +101,7 @@ public class CardService {
             throw new BadRequestException("Size of card (" + request.getRows() * request.getCols() + ") and number of events (" + request.getEvents().size() + ") doesn't match!");
         }
 
-        var card = cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card not found: " + id));
+        var card = get(id);
 
         card.setName(request.getName());
         card.setRows(request.getRows());
@@ -161,7 +164,7 @@ public class CardService {
     }
 
     public void buy(Long id, String token){
-        var card = cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card not found: " + id));
+        var card = get(id);
 
         var user = userService.get(jwtService.extractUserId(token));
 
@@ -192,7 +195,7 @@ public class CardService {
     }
 
     public void delete(Long id){
-        var card = cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card not found: " + id));
+        var card = get(id);
         cardRepository.delete(card);
     }
 

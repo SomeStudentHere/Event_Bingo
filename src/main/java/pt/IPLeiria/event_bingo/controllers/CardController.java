@@ -12,11 +12,8 @@ import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardRequestDto;
 import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.User;
-import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.mapper.CardMapper;
-import pt.IPLeiria.event_bingo.repositories.CardRepository;
 import pt.IPLeiria.event_bingo.services.CardService;
-import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.util.*;
 
@@ -24,15 +21,11 @@ import java.util.*;
 @RequestMapping("/cards")
 public class CardController {
     private final CardMapper cardMapper;
-    private final CardRepository cardRepository;
     private final CardService cardService;
-    private final UserService userService;
 
-    public CardController(CardMapper cardMapper, CardRepository cardRepository, CardService cardService, UserService userService) {
+    public CardController(CardMapper cardMapper, CardService cardService) {
         this.cardMapper = cardMapper;
-        this.cardRepository = cardRepository;
         this.cardService = cardService;
-        this.userService = userService;
     }
 
     @GetMapping
@@ -51,6 +44,11 @@ public class CardController {
                         .map(cardMapper::toDto)
                         .toList()
         );
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<CardDto> getCard(@PathVariable Long id) {
+        return ResponseEntity.ok(cardMapper.toDto(cardService.get(id)));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
