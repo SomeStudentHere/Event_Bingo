@@ -1,13 +1,15 @@
 package pt.IPLeiria.event_bingo.services;
 
 import org.springframework.stereotype.Service;
+import pt.IPLeiria.event_bingo.dtos.transactions.AdminTransactionDto;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
 import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
-import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
+import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
+import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
@@ -21,12 +23,16 @@ public class TransactionService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final TransactionMapper transactionMapper;
+    private final UserMapper userMapper;
 
-    public TransactionService(TransactionRepository transactionRepository, JwtService jwtService, UserRepository userRepository, UserService userService) {
+    public TransactionService(TransactionRepository transactionRepository, JwtService jwtService, UserRepository userRepository, UserService userService, TransactionMapper transactionMapper, UserMapper userMapper) {
         this.transactionRepository = transactionRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.transactionMapper = transactionMapper;
+        this.userMapper = userMapper;
     }
 
     public List<Transaction> list(User user) {
@@ -74,5 +80,16 @@ public class TransactionService {
         user.setBalance(user.getBalance() + (moneyDto.getType() == TransactionType.DEPOSIT? moneyDto.getAmount(): -moneyDto.getAmount()));
 
         userRepository.save(user);
+    }
+
+    public List<AdminTransactionDto> adminList() {
+        return userRepository.findAll()
+                .stream()
+                .map(u -> new AdminTransactionDto(userMapper.toAllDto(u),
+                                                        list(u)
+                                                                .stream()
+                                                                .map(transactionMapper::toNoUserDto)
+                                                                .toList())
+                ).toList();
     }
 }
