@@ -22,6 +22,7 @@ import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.CardService;
+import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,6 +49,9 @@ public class CardServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private CardService cardService;
@@ -170,7 +174,7 @@ public class CardServiceTest {
 
         when(cardRepository.findById(anyLong())).thenReturn(Optional.of(card));
         when(jwtService.extractUserId(anyString())).thenReturn(1L);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userService.get(anyLong())).thenReturn(user);
 
         when(userRepository.save(any())).thenReturn(user);
         when(cardRepository.save(any())).thenReturn(card);
@@ -187,7 +191,7 @@ public class CardServiceTest {
     public  void testCardServiceBuyFailMoney(){
         when(cardRepository.findById(anyLong())).thenReturn(Optional.of(card));
         when(jwtService.extractUserId(anyString())).thenReturn(1L);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userService.get(anyLong())).thenReturn(user);
 
         Assertions.assertThrows(BadRequestException.class, () -> cardService.buy(0L, "Test"));
     }

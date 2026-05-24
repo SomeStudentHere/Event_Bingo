@@ -82,6 +82,7 @@ public class UserServiceTest {
         Assertions.assertNotNull(savedUser);
     }
 
+    //todo
     @Test
     public void testUserServiceUpdateFailEmail() {
 
@@ -91,6 +92,8 @@ public class UserServiceTest {
         Assertions.assertThrows(BadRequestException.class, () -> userService.update(userRegisterDto, user.getId()));
     }
 
+
+    //todo
     @Test
     public void testUserServiceUpdateFailUsername() {
 
