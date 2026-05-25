@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Getter
@@ -13,7 +13,7 @@ import java.util.Date;
 public class EventDto {
     private long id;
     private String prediction;
-    private Date date;
+    private LocalDateTime date;
     private String sport;
     private EventStatus status;
     private String home_team;

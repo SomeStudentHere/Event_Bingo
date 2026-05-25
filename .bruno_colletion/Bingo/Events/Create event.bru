@@ -7,18 +7,18 @@ meta {
 post {
   url: http://localhost:8080/events
   body: json
-  auth: none
+  auth: bearer
 }
 
 auth:bearer {
-  token: {{token}}
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzc5NjY5NjY4LCJleHAiOjE3Nzk3NTYwNjh9.YhHqPFrO3_rTXcX2uOKY1RpqN5rvjFihLR3jTGZAsl0
 }
 
 body:json {
   {
     "prediction": "test test test",
     "sport": "test test test",
-    "date": "2026-04-10"
+    "date": "2026-04-10 00:00:00"
   }
 }
 

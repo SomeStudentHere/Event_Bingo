@@ -2,9 +2,11 @@ package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.cglib.core.Local;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,7 +27,7 @@ public class Event {
     @Column(nullable = false)
     private String prediction;
     @Column(nullable = false)
-    private Date date;
+    private LocalDateTime date;
     @Column(nullable = false)
     private String sport;
     @Column(nullable = false)
