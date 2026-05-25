@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Getter
@@ -16,8 +16,8 @@ import java.util.Date;
 public class EventPatchDto {
     private String prediction;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date date;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime date;
 
     private String sport;
 
