@@ -54,8 +54,18 @@ public class UserService {
         return user;
     }
 
-    public User update(UserRegisterDto request, Long id){
-        var user = get(id);
+    public User update(UserRegisterDto request, Long id, User loggedUser){
+
+
+        if (loggedUser.getStatus().equals(UserStatus.SUSPENDED)) {
+            throw new BadRequestException("User is Suspended");
+        }
+
+        if (loggedUser.getStatus().equals(UserStatus.DELETED)) {
+            throw new NotFoundException("User not Found");
+        }
+
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
         if (!Objects.equals(request.getEmail(), user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User's email already exists!");
@@ -76,7 +86,18 @@ public class UserService {
     }
 
     public User patch(UserPatchDto request, Long id, User loggedUser) {
-        var user = get(id);
+
+
+        if (loggedUser.getStatus().equals(UserStatus.SUSPENDED)) {
+            throw new BadRequestException("User is Suspended");
+        }
+
+        if (loggedUser.getStatus().equals(UserStatus.DELETED)) {
+            throw new NotFoundException("User not Found");
+        }
+
+
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("User's email already exists!");

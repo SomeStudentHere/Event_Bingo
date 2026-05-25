@@ -88,8 +88,11 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     @PutMapping("{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
-        var user = userService.update(request, id);
+    public ResponseEntity<UserDto> updateUser(Authentication authentication, @PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
+
+        User loggedUser = (User) authentication.getPrincipal();
+
+        var user = userService.update(request, id, loggedUser);
 
         return ResponseEntity.ok(userMapper.toDto(user));
     }
