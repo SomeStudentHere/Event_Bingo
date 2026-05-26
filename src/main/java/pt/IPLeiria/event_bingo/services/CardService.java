@@ -110,9 +110,9 @@ public class CardService {
         card.setEventsWithSignature(request.getEvents()
                 .stream()
                 .map(x ->
-                        eventRepository.findById(x).
-                                orElseThrow(() -> new BadRequestException("Event not found: " + x)))
-                .toList());
+                        eventRepository.findById(x)
+                                .orElseThrow(() -> new BadRequestException("Event not found: " + x)))
+                .collect(Collectors.toList()));
 
         card.setLine_prize(request.getLine_prize());
         card.setPrice(request.getPrice());
@@ -149,7 +149,7 @@ public class CardService {
                     .map(x ->
                             eventRepository.findById(x).
                                     orElseThrow(() -> new BadRequestException("Event not found: " + x)))
-                    .toList());
+                    .collect(Collectors.toList()));
 
         if (request.getLine_prize() != null)
             card.setLine_prize(request.getLine_prize());
