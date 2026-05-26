@@ -37,7 +37,7 @@ public class UserService {
     }
 
     public List<User> listAll() {
-        return userRepository.findAllByStatusIn(List.of(UserStatus.ACTIVE, UserStatus.SUSPENDED));
+        return userRepository.findAllByStatusIn(List.of(UserStatus.ACTIVE, UserStatus.SUSPENDED, UserStatus.DELETED));
     }
 
     public User get(Long id){

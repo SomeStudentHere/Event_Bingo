@@ -77,6 +77,7 @@ public class UserControllerTest {
     UserPatchDto userPatchDto = new UserPatchDto();
     UserRegisterDto userRegisterDto = new UserRegisterDto(user.getFull_name(), user.getUsername(), user.getEmail(), user.getPassword(), user.getAvatar());
 
+
     //todo
     @Test
     public void endpointsWillReturnOkOnSuccess() throws Exception {
@@ -137,7 +138,7 @@ public class UserControllerTest {
 
 
     @Test
-    void adminShouldSeeActiveAndSuspendedUsers() throws Exception {
+    void adminShouldSeeAllUsers() throws Exception {
         User admin = User.builder()
                 .id(0)
                 .role(UserRole.ADMIN)
@@ -153,7 +154,12 @@ public class UserControllerTest {
                 .status(UserStatus.SUSPENDED)
                 .build();
 
-        given(userService.listAll()).willReturn(List.of(userActive, userSuspended));
+        User userDeleted = User.builder()
+                .id(2)
+                .status(UserStatus.DELETED)
+                .build();
+
+        given(userService.listAll()).willReturn(List.of(userActive, userSuspended, userDeleted));
 
         given(userMapper.toAllDto(userActive))
                 .willReturn(new UserAllDto(
@@ -181,6 +187,19 @@ public class UserControllerTest {
                         userSuspended.getRole()
                 ));
 
+        given(userMapper.toAllDto(userDeleted))
+                .willReturn(new UserAllDto(
+                        userSuspended.getId(),
+                        userSuspended.getFull_name(),
+                        userSuspended.getUsername(),
+                        userSuspended.getEmail(),
+                        userSuspended.getBalance(),
+                        userSuspended.getStatus(),
+                        userSuspended.getAvatar(),
+                        new ArrayList<>(),
+                        userSuspended.getRole()
+                ));
+
         mockMvc.perform(get("/users")
                         .principal(new UsernamePasswordAuthenticationToken(
                                 admin,
@@ -188,7 +207,7 @@ public class UserControllerTest {
                                 List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
                         )))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.length()").value(3));
     }
 
 
