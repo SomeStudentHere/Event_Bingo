@@ -75,7 +75,7 @@ public class UserServiceTest {
 
         AtomicReference<User> reference = new AtomicReference<>();
 
-        Assertions.assertDoesNotThrow(() -> reference.set(userService.update(userRegisterDto, user.getId())));
+        Assertions.assertDoesNotThrow(() -> reference.set(userService.update(userRegisterDto, user.getId(), user)));
 
         var savedUser = reference.get();
 

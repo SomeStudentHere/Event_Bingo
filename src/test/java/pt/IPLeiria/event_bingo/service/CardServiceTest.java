@@ -25,6 +25,7 @@ import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.CardService;
 import pt.IPLeiria.event_bingo.services.UserService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,28 +71,28 @@ public class CardServiceTest {
         Event ev1 = Event.builder()
                 .id(0)
                 .prediction("test")
-                .date(new Date())
+                .date(LocalDateTime.now())
                 .sport("test")
                 .status(EventStatus.Pending)
                 .build(),
             ev2 = Event.builder()
                     .id(1)
                     .prediction("test")
-                    .date(new Date())
+                    .date(LocalDateTime.now())
                     .sport("test")
                     .status(EventStatus.Pending)
                     .build(),
             ev3 = Event.builder()
                     .id(2)
                     .prediction("test")
-                    .date(new Date())
+                    .date(LocalDateTime.now())
                     .sport("test")
                     .status(EventStatus.Pending)
                     .build(),
             ev4 = Event.builder()
                     .id(3)
                     .prediction("test")
-                    .date(new Date())
+                    .date(LocalDateTime.now())
                     .sport("test")
                     .status(EventStatus.Pending)
                     .build();
