@@ -66,6 +66,8 @@ public class CardController {
     @PutMapping("/{id}")
     public ResponseEntity<CardDto> updateCard(@PathVariable Long id, @Valid @RequestBody CardRequestDto request){
 
+        System.out.println("ENTROU NO PUT");
+
         Card card = cardService.update(request, id);
 
         var cardDto = cardMapper.toDto(card);
