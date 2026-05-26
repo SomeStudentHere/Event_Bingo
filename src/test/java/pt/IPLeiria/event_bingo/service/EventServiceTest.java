@@ -14,6 +14,7 @@ import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 import pt.IPLeiria.event_bingo.services.EventService;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,7 @@ public class EventServiceTest {
         event.setPrediction("test");
         event.setStatus(EventStatus.Pending);
         event.setSport("TEST");
-        event.setDate(new Date());
+        event.setDate(LocalDateTime.now());
         event.setAway_team(null);
         event.setHome_team(null);
 
