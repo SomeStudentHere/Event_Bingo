@@ -137,7 +137,7 @@ public class UserService {
     }
 
     public void delete(Long id){
-        var user = get(id);
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
         user.setStatus(UserStatus.DELETED);
 
