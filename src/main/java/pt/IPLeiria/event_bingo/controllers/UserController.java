@@ -1,7 +1,7 @@
 package pt.IPLeiria.event_bingo.controllers;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -11,34 +11,31 @@ import pt.IPLeiria.event_bingo.dtos.users.UserDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
-import pt.IPLeiria.event_bingo.exeptions.InternalErrorException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
-import pt.IPLeiria.event_bingo.security.JwtService;
+import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.UserService;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
 
     private final UserMapper userMapper;
     private final UserService userService;
-
-    public UserController(UserMapper userMapper, UserService userService, JwtService jwtService) {
-        this.userMapper = userMapper;
-        this.userService = userService;
-    }
+    private final LogBufferService logBufferService;
 
     @GetMapping
     public List<?> getUsers(Authentication authentication) {
 
+        logBufferService.addLog(LogLevel.INFO, "List users requested");
+
         boolean isAdmin = false;
 
         if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
-
             User user = (User) authentication.getPrincipal();
             isAdmin = user.getRole() == UserRole.ADMIN;
         }
@@ -58,6 +55,8 @@ public class UserController {
 
     @GetMapping("{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id, Authentication authentication, HttpServletResponse response) {
+
+        logBufferService.addLog(LogLevel.INFO, "Get user " +  id + " requested");
 
         User user = userService.get(id);
 
@@ -100,6 +99,8 @@ public class UserController {
     @PutMapping("{id}")
     public ResponseEntity<UserDto> updateUser(Authentication authentication, @PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
 
+        logBufferService.addLog(LogLevel.INFO, "Update user " + id + " requested");
+
         User loggedUser = (User) authentication.getPrincipal();
 
         var user = userService.update(request, id, loggedUser);
@@ -110,6 +111,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     @PatchMapping("{id}")
     public ResponseEntity<UserAllDto> patchUser(Authentication authentication, @PathVariable Long id, @Valid @RequestBody UserPatchDto request){
+        logBufferService.addLog(LogLevel.INFO, "Patch user " + id + " requested");
 
         User loggedUser = (User) authentication.getPrincipal();
 
@@ -121,6 +123,8 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
+        logBufferService.addLog(LogLevel.INFO, "Delete user " + id + " requested");
+
         userService.delete(id);
 
         return ResponseEntity.ok().build();
@@ -130,6 +134,7 @@ public class UserController {
     public ResponseEntity<UserAllDto> getMe(Authentication authentication) {
 
         User user = userService.get(((User) authentication.getPrincipal()).getId());
+        logBufferService.addLog(LogLevel.INFO, "Get user " + user.getId() + " self information requested");
 
         return ResponseEntity.ok(userMapper.toAllDto(user));
     }

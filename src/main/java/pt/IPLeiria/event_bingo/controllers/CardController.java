@@ -12,8 +12,11 @@ import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardRequestDto;
 import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.User;
+import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.mapper.CardMapper;
 import pt.IPLeiria.event_bingo.services.CardService;
+import pt.IPLeiria.event_bingo.services.LogBufferService;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 
@@ -22,10 +25,14 @@ import java.util.*;
 public class CardController {
     private final CardMapper cardMapper;
     private final CardService cardService;
+    private final LogBufferService logBufferService;
+    private final ObjectMapper objectMapper;
 
-    public CardController(CardMapper cardMapper, CardService cardService) {
+    public CardController(CardMapper cardMapper, CardService cardService, LogBufferService logBufferService, ObjectMapper objectMapper) {
         this.cardMapper = cardMapper;
         this.cardService = cardService;
+        this.logBufferService = logBufferService;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping
@@ -36,6 +43,8 @@ public class CardController {
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User u) {
             user = u;
         }
+
+        logBufferService.addLog(LogLevel.INFO, (user == null?"Anonymous request":(user.getUsername() + " requested")) + " list of cards");
 
         var cards = cardService.list(user);
 
@@ -48,12 +57,15 @@ public class CardController {
 
     @GetMapping("{id}")
     public ResponseEntity<CardDto> getCard(@PathVariable Long id) {
+        logBufferService.addLog(LogLevel.INFO, id + " card requested");
         return ResponseEntity.ok(cardMapper.toDto(cardService.get(id)));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CardDto> createCard(@RequestBody CardRequestDto request, UriComponentsBuilder uriBuilder){
+
+        logBufferService.addLog(LogLevel.INFO, "Create card requested with data: " + objectMapper.writeValueAsString(request));
 
         Card card = cardService.create(request);
 
@@ -66,7 +78,7 @@ public class CardController {
     @PutMapping("/{id}")
     public ResponseEntity<CardDto> updateCard(@PathVariable Long id, @Valid @RequestBody CardRequestDto request){
 
-        System.out.println("ENTROU NO PUT");
+        logBufferService.addLog(LogLevel.INFO, "Update card " + id + " requested with data: " + objectMapper.writeValueAsString(request));
 
         Card card = cardService.update(request, id);
 
@@ -79,6 +91,8 @@ public class CardController {
     @PatchMapping("/{id}")
     public ResponseEntity<CardDto> patchCard(@PathVariable Long id, @Valid @RequestBody CardPatchDto request){
 
+        logBufferService.addLog(LogLevel.INFO, "Patch card " + id + " requested with data: " + objectMapper.writeValueAsString(request));
+
         Card card = cardService.patch(id, request);
 
         var cardDto = cardMapper.toDto(card);
@@ -89,6 +103,7 @@ public class CardController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/buy")
     public ResponseEntity<?> buyCard(@PathVariable Long id, @RequestHeader("Authorization") String token){
+
         cardService.buy(id, token);
 
         return ResponseEntity.ok(Map.of("message", "Card bought successfully!"));
@@ -97,6 +112,7 @@ public class CardController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteCard(@PathVariable Long id){
+        logBufferService.addLog(LogLevel.INFO, "Delete card " + id + " requested");
         cardService.delete(id);
 
         return ResponseEntity.ok(Map.of("message", "Card deleted successfully!"));
@@ -105,6 +121,7 @@ public class CardController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/auto")
     public ResponseEntity<?> createCardsAuto(@Valid @RequestBody CardBuilderDto request){
+        logBufferService.addLog(LogLevel.INFO, "Card builder requested with data: " + objectMapper.writeValueAsString(request));
 
         if (cardService.isRunning()){
             return ResponseEntity
