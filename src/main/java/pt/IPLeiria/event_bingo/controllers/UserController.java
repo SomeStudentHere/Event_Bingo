@@ -1,5 +1,6 @@
 package pt.IPLeiria.event_bingo.controllers;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,12 @@ import pt.IPLeiria.event_bingo.dtos.users.UserRegisterDto;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
+import pt.IPLeiria.event_bingo.exeptions.InternalErrorException;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.UserService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -73,9 +76,9 @@ public class UserController {
                 response.sendRedirect("/users/me");
             } catch (IOException e) {
                 throw new InternalErrorException("Had a problem redirecting to the user page!");
-            } finally {
-                return null;
             }
+
+            return null;
         }
 
         if (isAdmin) {

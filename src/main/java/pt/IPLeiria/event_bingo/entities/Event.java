@@ -2,10 +2,8 @@ package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.cglib.core.Local;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

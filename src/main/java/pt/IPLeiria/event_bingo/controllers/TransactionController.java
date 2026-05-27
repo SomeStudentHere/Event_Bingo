@@ -14,6 +14,7 @@ import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
 import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.TransactionService;
+import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -26,12 +27,14 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final LogBufferService logBufferService;
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
-    public TransactionController(TransactionMapper transactionMapper, TransactionService transactionService, LogBufferService logBufferService, ObjectMapper objectMapper) {
+    public TransactionController(TransactionMapper transactionMapper, TransactionService transactionService, LogBufferService logBufferService, ObjectMapper objectMapper, UserService userService) {
         this.transactionMapper = transactionMapper;
         this.transactionService = transactionService;
         this.logBufferService = logBufferService;
         this.objectMapper = objectMapper;
+        this.userService = userService;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -67,5 +70,15 @@ public class TransactionController {
         transactionService.create(request, token);
 
         return ResponseEntity.status(201).body(Map.of("message", (request.getType() == TransactionType.DEPOSIT? "Deposit": "Withdraw")+ " successful"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("{id}")
+    public ResponseEntity<?> getTransaction(@PathVariable long id){
+        logBufferService.addLog(LogLevel.INFO, "Get transaction with id: " + id);
+
+        var user = userService.get(id);
+
+        return ResponseEntity.ok(transactionService.list(user));
     }
 }
