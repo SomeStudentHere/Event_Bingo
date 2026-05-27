@@ -23,6 +23,7 @@ import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,7 @@ public class CardService {
         card.setLine_prize(request.getLine_prize());
         card.setRows(request.getRows());
         card.setCols(request.getCols());
+        card.setDate(LocalDateTime.now());
 
         card.setApproved(true);
 
