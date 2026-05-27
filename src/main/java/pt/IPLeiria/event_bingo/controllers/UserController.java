@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getUser(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<?> getUser(@PathVariable Long id, Authentication authentication, HttpServletResponse response) {
 
         User user = userService.get(id);
 
@@ -69,7 +69,17 @@ public class UserController {
                 && authentication.getPrincipal() instanceof User authUser
                 && authUser.getUsername().equals(user.getUsername());
 
-        if (isAdmin || isOwner) {
+        if (isOwner) {
+            try {
+                response.sendRedirect("/users/me");
+            } catch (IOException e) {
+                throw new InternalErrorException("Had a problem redirecting to the user page!");
+            } finally {
+                return null;
+            }
+        }
+
+        if (isAdmin) {
             return ResponseEntity.ok(userMapper.toAllDto(user));
         }
 
@@ -108,7 +118,8 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toAllDto(user));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")    @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         userService.delete(id);
 
