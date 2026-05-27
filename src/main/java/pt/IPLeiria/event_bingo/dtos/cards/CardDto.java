@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import pt.IPLeiria.event_bingo.dtos.events.EventDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -21,4 +22,5 @@ public class CardDto {
     private boolean approved;
     private List<EventDto> events;
     private boolean terminated;
+    private LocalDateTime date;
 }

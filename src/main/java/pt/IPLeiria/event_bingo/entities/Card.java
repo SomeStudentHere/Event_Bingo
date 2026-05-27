@@ -2,9 +2,8 @@ package pt.IPLeiria.event_bingo.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
-import pt.IPLeiria.event_bingo.repositories.EventRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +32,8 @@ public class Card {
     private double price;
     @Column(nullable = false)
     private boolean approved;
+    @Column(nullable = false)
+    private LocalDateTime date;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
