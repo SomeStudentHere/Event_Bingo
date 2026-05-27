@@ -5,9 +5,9 @@ meta {
 }
 
 patch {
-  url: http://localhost:8080/users/1
+  url: http://localhost:8080/users/2
   body: json
-  auth: none
+  auth: bearer
 }
 
 auth:bearer {
@@ -16,7 +16,7 @@ auth:bearer {
 
 body:json {
   {
-    "balance": "500"
+    "userRole": "USER"
   }
 }
 
