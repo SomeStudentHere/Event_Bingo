@@ -12,6 +12,7 @@ import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
+import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
@@ -33,6 +34,7 @@ public class CardService {
     private final JwtService jwtService;
     private final TransactionRepository transactionRepository;
     private final UserService userService;
+    private final LogBufferService logBufferService;
     private boolean running = false;
     private Double progress = null;
 
@@ -41,7 +43,7 @@ public class CardService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService, TransactionRepository transactionRepository, UserService userService) {
+    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService, TransactionRepository transactionRepository, UserService userService, LogBufferService logBufferService) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.eventRepository = eventRepository;
@@ -49,6 +51,7 @@ public class CardService {
         this.jwtService = jwtService;
         this.transactionRepository = transactionRepository;
         this.userService = userService;
+        this.logBufferService = logBufferService;
     }
 
     public Card get(Long id) {
@@ -167,6 +170,8 @@ public class CardService {
         var card = get(id);
 
         var user = userService.get(jwtService.extractUserId(token));
+
+        logBufferService.addLog(LogLevel.INFO, "Buy card " + id + " requested by user " + user.getUsername());
 
         if (user.getBalance() - card.getPrice() < 0){
             throw new BadRequestException("Insufficient balance to buy this card!");
