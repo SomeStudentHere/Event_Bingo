@@ -79,6 +79,10 @@ public class TransactionController {
 
         var user = userService.get(id);
 
-        return ResponseEntity.ok(transactionService.list(user));
+        return ResponseEntity.ok(
+                transactionService.list(user).stream()
+                .map(transactionMapper::toDto)
+                .toList()
+        );
     }
 }
