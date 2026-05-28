@@ -5,6 +5,7 @@ import pt.IPLeiria.event_bingo.entities.Event;
 import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
+import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.repositories.CardRepository;
@@ -22,11 +23,13 @@ public class CardCheckWinService {
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
+    private final LogBufferService logBufferService;
 
-    public CardCheckWinService(CardRepository cardRepository, UserRepository userRepository, TransactionRepository transactionRepository) {
+    public CardCheckWinService(CardRepository cardRepository, UserRepository userRepository, TransactionRepository transactionRepository, LogBufferService logBufferService) {
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
         this.transactionRepository = transactionRepository;
+        this.logBufferService = logBufferService;
     }
 
     public void updateCardsAfterEventStatusChange(Event event) {
@@ -78,13 +81,17 @@ public class CardCheckWinService {
                 .allMatch(e -> e.getStatus() == EventStatus.Win);
 
         if (bingo || hasLine) {
+            logBufferService.addLog(LogLevel.INFO, "Found Prize on card " + card.getId());
             double amount = bingo? card.getBingo_prize(): card.getLine_prize();
+            card.setTerminated(true);
+            cardRepository.save(card);
 
             for (User user : card.getUsers()) {
                 if (user.getStatus()!= UserStatus.ACTIVE)
                     continue;
-                card.setTerminated(true);
-                cardRepository.save(card);
+
+                logBufferService.addLog(LogLevel.INFO, "Adding money to user " + user.getId());
+
                 user.setBalance(user.getBalance() + amount);
                 userRepository.save(user);
 
