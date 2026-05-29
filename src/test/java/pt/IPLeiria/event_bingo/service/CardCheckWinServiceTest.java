@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
 import org.mockito.ArgumentCaptor;
+import pt.IPLeiria.event_bingo.services.LogBufferService;
 
 @ExtendWith(MockitoExtension.class)
 public class CardCheckWinServiceTest {
@@ -42,6 +42,11 @@ public class CardCheckWinServiceTest {
 
     @InjectMocks
     private CardCheckWinService cardCheckWinService;
+
+    //cardservice usa isto internamente
+    @Mock
+    private LogBufferService logBufferService;
+
 
     @Test
     public void testUpdateCardsAfterEventStatusChangePending() {
@@ -87,6 +92,19 @@ public class CardCheckWinServiceTest {
         User user = User.builder()
                 .balance(100)
                 .status(UserStatus.ACTIVE)
+                .cards(new ArrayList<>())
+                .build();
+
+        User user2 = User.builder()
+                .balance(100)
+                .status(UserStatus.ACTIVE)
+                .cards(new ArrayList<>())
+                .build();
+
+        User user3 = User.builder()
+                .balance(100)
+                .status(UserStatus.ACTIVE)
+                .cards(new ArrayList<>())
                 .build();
 
         Card card = Card.builder()
@@ -95,10 +113,9 @@ public class CardCheckWinServiceTest {
                 .line_prize(50)
                 .bingo_prize(500)
                 .events(List.of(event1, event2, event3, event4))
-                .users(List.of(user))
+                .users(new ArrayList<>(List.of(user, user2)))
                 .terminated(false)
                 .build();
-
 
         event1.setStatus(EventStatus.Win);
         event2.setStatus(EventStatus.Win);
@@ -106,28 +123,47 @@ public class CardCheckWinServiceTest {
         event3.setStatus(EventStatus.Lose);
         event4.setStatus(EventStatus.Lose);
 
-        when(cardRepository.findByEventsContaining(event1)).thenReturn(List.of(card));
+        when(cardRepository.findByEventsContaining(event1))
+                .thenReturn(List.of(card));
+
         cardCheckWinService.updateCardsAfterEventStatusChange(event1);
 
         assertTrue(card.isTerminated());
 
         assertEquals(150, user.getBalance());
+        assertEquals(150, user2.getBalance());
+        assertEquals(100, user3.getBalance());
 
         verify(cardRepository).save(card);
-        verify(userRepository).save(user);
+
+        verify(userRepository, times(2)).save(any(User.class));
 
         ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
-        verify(transactionRepository).save(captor.capture());
 
-        Transaction transaction = captor.getValue();
+        verify(transactionRepository, times(2)).save(captor.capture());
 
-        assertEquals(TransactionType.PRIZE, transaction.getType());
-        assertEquals(50, transaction.getAmount());
-        assertEquals(user, transaction.getUser());
-        assertNotNull(transaction.getDate());    }
+        List<Transaction> transactions = captor.getAllValues();
+
+        assertEquals(2, transactions.size());
+
+        for (Transaction transaction : transactions) {
+            assertEquals(TransactionType.PRIZE, transaction.getType());
+            assertEquals(50, transaction.getAmount());
+            assertNotNull(transaction.getDate());
+        }
+
+        List<User> transactionUsers = transactions.stream()
+                .map(Transaction::getUser)
+                .toList();
+
+        assertTrue(transactionUsers.contains(user));
+        assertTrue(transactionUsers.contains(user2));
+        assertFalse(transactionUsers.contains(user3));
+    }
 
     @Test
     public void testUpdateCardsAfterEventStatusChangeBingo() {
+
         Event event1 = new Event();
         event1.setStatus(EventStatus.Pending);
 
@@ -143,6 +179,19 @@ public class CardCheckWinServiceTest {
         User user = User.builder()
                 .balance(100)
                 .status(UserStatus.ACTIVE)
+                .cards(new ArrayList<>())
+                .build();
+
+        User user2 = User.builder()
+                .balance(100)
+                .status(UserStatus.ACTIVE)
+                .cards(new ArrayList<>())
+                .build();
+
+        User user3 = User.builder()
+                .balance(100)
+                .status(UserStatus.ACTIVE)
+                .cards(new ArrayList<>())
                 .build();
 
         Card card = Card.builder()
@@ -151,10 +200,9 @@ public class CardCheckWinServiceTest {
                 .line_prize(50)
                 .bingo_prize(500)
                 .events(List.of(event1, event2, event3, event4))
-                .users(List.of(user))
+                .users(new ArrayList<>(List.of(user, user2)))
                 .terminated(false)
                 .build();
-
 
         event1.setStatus(EventStatus.Win);
         event2.setStatus(EventStatus.Win);
@@ -162,23 +210,40 @@ public class CardCheckWinServiceTest {
         event4.setStatus(EventStatus.Win);
 
         when(cardRepository.findByEventsContaining(event1)).thenReturn(List.of(card));
+
         cardCheckWinService.updateCardsAfterEventStatusChange(event1);
 
         assertTrue(card.isTerminated());
 
         assertEquals(600, user.getBalance());
+        assertEquals(600, user2.getBalance());
+        assertEquals(100, user3.getBalance());
 
         verify(cardRepository).save(card);
-        verify(userRepository).save(user);
+
+        verify(userRepository, times(2)).save(any(User.class));
 
         ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
-        verify(transactionRepository).save(captor.capture());
 
-        Transaction transaction = captor.getValue();
+        verify(transactionRepository, times(2)).save(captor.capture());
 
-        assertEquals(TransactionType.PRIZE, transaction.getType());
-        assertEquals(500, transaction.getAmount());
-        assertEquals(user, transaction.getUser());
-        assertNotNull(transaction.getDate());
+        List<Transaction> transactions = captor.getAllValues();
+
+        assertEquals(2, transactions.size());
+
+        for (Transaction transaction : transactions) {
+            assertEquals(TransactionType.PRIZE, transaction.getType());
+            assertEquals(500, transaction.getAmount());
+            assertNotNull(transaction.getDate());
+        }
+
+        List<User> transactionUsers = transactions.stream()
+                .map(Transaction::getUser)
+                .toList();
+
+        assertTrue(transactionUsers.contains(user));
+        assertTrue(transactionUsers.contains(user2));
+        assertFalse(transactionUsers.contains(user3));
     }
+
 }
