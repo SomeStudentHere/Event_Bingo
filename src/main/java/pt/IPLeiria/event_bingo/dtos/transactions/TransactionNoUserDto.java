@@ -15,4 +15,5 @@ public class TransactionNoUserDto {
     private TransactionType type;
     private double amount;
     private Date date;
+    private Boolean claimed;
 }

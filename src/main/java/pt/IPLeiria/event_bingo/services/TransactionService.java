@@ -1,5 +1,6 @@
 package pt.IPLeiria.event_bingo.services;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.transactions.AdminTransactionDto;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
@@ -91,5 +92,21 @@ public class TransactionService {
                                                                 .map(transactionMapper::toNoUserDto)
                                                                 .toList())
                 ).toList();
+    }
+
+    public void updateClaimed(long transactionId, boolean claimed, User currentUser) {
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new BadRequestException("Transaction not found"));
+
+        boolean isAdmin = currentUser.getRole() == UserRole.ADMIN;
+        boolean isOwner = transaction.getUser().getId() == currentUser.getId();
+
+        if (!isAdmin && !isOwner) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        transaction.setClaimed(claimed);
+        transactionRepository.save(transaction);
     }
 }

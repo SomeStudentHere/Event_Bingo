@@ -6,6 +6,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
+import pt.IPLeiria.event_bingo.dtos.transactions.TransactionDto;
+import pt.IPLeiria.event_bingo.dtos.transactions.TransactionPatchDto;
+import pt.IPLeiria.event_bingo.dtos.users.UserAllDto;
+import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
@@ -85,4 +89,19 @@ public class TransactionController {
                 .toList()
         );
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("{id}")
+    public ResponseEntity<?> patchTransaction(
+            @PathVariable long id,
+            @Valid @RequestBody TransactionPatchDto request,
+            Authentication authentication) {
+
+        User user = (User) authentication.getPrincipal();
+
+        transactionService.updateClaimed(id, request.getClaimed(), user);
+
+        return ResponseEntity.ok(Map.of("message", "Transaction updated successfully"));
+    }
+
 }
