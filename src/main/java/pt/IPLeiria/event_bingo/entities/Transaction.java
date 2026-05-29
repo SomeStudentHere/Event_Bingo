@@ -31,4 +31,7 @@ public class Transaction {
 
     @Column(nullable = false)
     private Date date;
+
+    @Column(nullable = false)
+    private Boolean claimed = false;
 }
