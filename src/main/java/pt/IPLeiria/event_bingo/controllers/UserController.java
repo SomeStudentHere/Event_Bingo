@@ -74,9 +74,8 @@ public class UserController {
                 response.sendRedirect("/users/me");
             } catch (IOException e) {
                 throw new InternalErrorException("Had a problem redirecting to the user page!");
-            } finally {
-                return null;
             }
+            return null;
         }
 
         if (isAdmin) {
