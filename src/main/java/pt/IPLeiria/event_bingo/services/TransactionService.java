@@ -1,5 +1,7 @@
 package pt.IPLeiria.event_bingo.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.transactions.AdminTransactionDto;
@@ -36,15 +38,15 @@ public class TransactionService {
         this.userMapper = userMapper;
     }
 
-    public List<Transaction> list(User user) {
+    public Page<Transaction> list(User user, Pageable pageable) {
 
         boolean isAdmin = user.getRole() == UserRole.ADMIN;
 
         if (isAdmin) {
-            return transactionRepository.findAll();
+            return transactionRepository.findAll(pageable);
         }
 
-        return transactionRepository.findAllByUser(user);
+        return transactionRepository.findAllByUser(user, pageable);
     }
 
     public void create(MoneyDto moneyDto, String token) {
@@ -83,16 +85,17 @@ public class TransactionService {
         userRepository.save(user);
     }
 
+/* //removido pq já tem uma rota especifica para ir buscar transações de cada user
     public List<AdminTransactionDto> adminList() {
         return userRepository.findAll()
                 .stream()
                 .map(u -> new AdminTransactionDto(userMapper.toAllDto(u),
-                                                        list(u)
+                                            transactionRepository.findAll(u)
                                                                 .stream()
                                                                 .map(transactionMapper::toNoUserDto)
                                                                 .toList())
                 ).toList();
-    }
+    }*/
 
     public void updateClaimed(long transactionId, boolean claimed, User currentUser) {
 

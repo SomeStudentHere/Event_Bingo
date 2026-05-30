@@ -1,5 +1,7 @@
 package pt.IPLeiria.event_bingo.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.events.EventPatchDto;
 import pt.IPLeiria.event_bingo.dtos.events.EventRequestDto;
@@ -29,8 +31,8 @@ public class EventService {
         return eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event " + id + " not Found"));
     }
 
-    public List<Event> list() {
-        return eventRepository.findAll();
+    public Page<Event> list(Pageable pageable) {
+        return eventRepository.findAll(pageable);
     }
 
     public Event create(EventRequestDto request){

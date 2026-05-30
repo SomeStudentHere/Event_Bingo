@@ -1,8 +1,11 @@
 package pt.IPLeiria.event_bingo.services;
 
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
@@ -59,13 +62,13 @@ public class CardService {
         return cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card " + id + " not Found"));
     }
 
-    public List<Card> list(User user) {
+    public Page<Card> list(User user, Pageable pageable) {
 
         if (user != null && user.getRole() == UserRole.ADMIN) {
-            return cardRepository.findAll();
+            return cardRepository.findAll(pageable);
         }
 
-        return cardRepository.findCardsByApprovedIs(true);
+        return cardRepository.findCardsByApprovedIs(true, pageable);
     }
 
     public Card create(CardRequestDto request){
