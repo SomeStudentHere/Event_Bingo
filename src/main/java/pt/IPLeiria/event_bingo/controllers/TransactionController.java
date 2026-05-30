@@ -1,7 +1,6 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +11,6 @@ import pt.IPLeiria.event_bingo.dtos.transactions.TransactionPatchDto;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
-import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
 import pt.IPLeiria.event_bingo.services.LogBufferService;
@@ -20,7 +18,6 @@ import pt.IPLeiria.event_bingo.services.TransactionService;
 import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

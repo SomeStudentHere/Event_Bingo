@@ -12,8 +12,6 @@ import pt.IPLeiria.event_bingo.exeptions.NotFoundException;
 import pt.IPLeiria.event_bingo.mapper.EventMapper;
 import pt.IPLeiria.event_bingo.repositories.EventRepository;
 
-import java.util.List;
-
 @Service
 public class EventService {
 

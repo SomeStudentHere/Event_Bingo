@@ -1,7 +1,6 @@
 package pt.IPLeiria.event_bingo.services;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

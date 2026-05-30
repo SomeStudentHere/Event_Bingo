@@ -21,7 +21,6 @@ import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")

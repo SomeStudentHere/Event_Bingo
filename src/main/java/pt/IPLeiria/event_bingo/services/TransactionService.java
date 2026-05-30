@@ -4,21 +4,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import pt.IPLeiria.event_bingo.dtos.transactions.AdminTransactionDto;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
 import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
-import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
-import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class TransactionService {
@@ -26,16 +22,12 @@ public class TransactionService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final TransactionMapper transactionMapper;
-    private final UserMapper userMapper;
 
-    public TransactionService(TransactionRepository transactionRepository, JwtService jwtService, UserRepository userRepository, UserService userService, TransactionMapper transactionMapper, UserMapper userMapper) {
+    public TransactionService(TransactionRepository transactionRepository, JwtService jwtService, UserRepository userRepository, UserService userService) {
         this.transactionRepository = transactionRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.userService = userService;
-        this.transactionMapper = transactionMapper;
-        this.userMapper = userMapper;
     }
 
     public Page<Transaction> list(User user, Pageable pageable) {

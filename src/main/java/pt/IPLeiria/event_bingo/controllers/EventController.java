@@ -15,8 +15,6 @@ import pt.IPLeiria.event_bingo.services.EventService;
 import pt.IPLeiria.event_bingo.services.LogBufferService;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/events")
 public class EventController {
