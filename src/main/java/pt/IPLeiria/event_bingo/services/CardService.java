@@ -3,6 +3,8 @@ package pt.IPLeiria.event_bingo.services;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
@@ -12,6 +14,7 @@ import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.Transaction;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.EventStatus;
+import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
@@ -23,6 +26,7 @@ import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +37,7 @@ public class CardService {
     private final JwtService jwtService;
     private final TransactionRepository transactionRepository;
     private final UserService userService;
+    private final LogBufferService logBufferService;
     private boolean running = false;
     private Double progress = null;
 
@@ -41,7 +46,7 @@ public class CardService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService, TransactionRepository transactionRepository, UserService userService) {
+    public CardService(CardMapper cardMapper, CardRepository cardRepository, EventRepository eventRepository, UserRepository userRepository, JwtService jwtService, TransactionRepository transactionRepository, UserService userService, LogBufferService logBufferService) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.eventRepository = eventRepository;
@@ -49,19 +54,20 @@ public class CardService {
         this.jwtService = jwtService;
         this.transactionRepository = transactionRepository;
         this.userService = userService;
+        this.logBufferService = logBufferService;
     }
 
     public Card get(Long id) {
         return cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card " + id + " not Found"));
     }
 
-    public List<Card> list(User user) {
+    public Page<Card> list(User user, Pageable pageable) {
 
         if (user != null && user.getRole() == UserRole.ADMIN) {
-            return cardRepository.findAll();
+            return cardRepository.findAll(pageable);
         }
 
-        return cardRepository.findCardsByApprovedIs(true);
+        return cardRepository.findCardsByApprovedIs(true, pageable);
     }
 
     public Card create(CardRequestDto request){
@@ -77,6 +83,7 @@ public class CardService {
         card.setLine_prize(request.getLine_prize());
         card.setRows(request.getRows());
         card.setCols(request.getCols());
+        card.setDate(LocalDateTime.now());
 
         card.setApproved(true);
 
@@ -110,9 +117,9 @@ public class CardService {
         card.setEventsWithSignature(request.getEvents()
                 .stream()
                 .map(x ->
-                        eventRepository.findById(x).
-                                orElseThrow(() -> new BadRequestException("Event not found: " + x)))
-                .toList());
+                        eventRepository.findById(x)
+                                .orElseThrow(() -> new BadRequestException("Event not found: " + x)))
+                .collect(Collectors.toList()));
 
         card.setLine_prize(request.getLine_prize());
         card.setPrice(request.getPrice());
@@ -149,7 +156,7 @@ public class CardService {
                     .map(x ->
                             eventRepository.findById(x).
                                     orElseThrow(() -> new BadRequestException("Event not found: " + x)))
-                    .toList());
+                    .collect(Collectors.toList()));
 
         if (request.getLine_prize() != null)
             card.setLine_prize(request.getLine_prize());
@@ -167,6 +174,8 @@ public class CardService {
         var card = get(id);
 
         var user = userService.get(jwtService.extractUserId(token));
+
+        logBufferService.addLog(LogLevel.INFO, "Buy card " + id + " requested by user " + user.getUsername());
 
         if (user.getBalance() - card.getPrice() < 0){
             throw new BadRequestException("Insufficient balance to buy this card!");
@@ -240,20 +249,21 @@ public class CardService {
             card.setPrice(rand.nextDouble(request.getPrice_max() - request.getPrice_min() + 1) + request.getPrice_min());
             card.setLine_prize(rand.nextDouble(request.getLine_prize_max() - request.getLine_prize_min() + 1) + request.getLine_prize_min());
             card.setBingo_prize(rand.nextDouble(request.getBingo_prize_max() - request.getBingo_prize_min() + 1) + request.getBingo_prize_min());
+            card.setDate(LocalDateTime.now());
 
             do {
                 Collections.shuffle(shuffled);
                 card.setEventsWithSignature(shuffled.stream().limit((long) request.getCols() * request.getRows()).collect(Collectors.toList()));
                 tries++;
                 if (tries > 5) break;
-            } while (cardRepository.existsByEventsSignature(card.getEventsSignature()));
+            } while (cardRepository.existsByEventsSignature(card.getEventsSignature()) || cards.stream().anyMatch(c -> c.getEventsSignature().equals(card.getEventsSignature())));
 
             if (tries > 5) break;
 
             cards.add(card);
             updateGeneration(true, ((double)cards.size())/request.getCount());
 
-            System.out.printf("Card created with signature: " + card.getEventsSignature());
+            logBufferService.addLog(LogLevel.INFO, "Card created with signature: " + card.getEventsSignature());
         }
 
         if (!cards.isEmpty())

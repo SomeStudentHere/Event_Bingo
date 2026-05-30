@@ -1,5 +1,7 @@
 package pt.IPLeiria.event_bingo.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.auth.LoginRequestDto;
@@ -32,12 +34,12 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-    public List<User> list() {
-        return userRepository.findAllByStatus(UserStatus.ACTIVE);
+    public Page<User> list(Pageable pageable) {
+        return userRepository.findAllByStatus(UserStatus.ACTIVE, pageable);
     }
 
-    public List<User> listAll() {
-        return userRepository.findAllByStatusIn(List.of(UserStatus.ACTIVE, UserStatus.SUSPENDED));
+    public Page<User> listAll(Pageable pageable) {
+        return userRepository.findAllByStatusIn(List.of(UserStatus.ACTIVE, UserStatus.SUSPENDED, UserStatus.DELETED), pageable);
     }
 
     public User get(Long id){
@@ -137,7 +139,7 @@ public class UserService {
     }
 
     public void delete(Long id){
-        var user = get(id);
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User " + id + " not Found"));
 
         user.setStatus(UserStatus.DELETED);
 
