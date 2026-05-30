@@ -1,19 +1,16 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.IPLeiria.event_bingo.dtos.transactions.MoneyDto;
-import pt.IPLeiria.event_bingo.dtos.transactions.TransactionDto;
 import pt.IPLeiria.event_bingo.dtos.transactions.TransactionPatchDto;
-import pt.IPLeiria.event_bingo.dtos.users.UserAllDto;
-import pt.IPLeiria.event_bingo.dtos.users.UserPatchDto;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.LogLevel;
 import pt.IPLeiria.event_bingo.entities.enums.TransactionType;
-import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 import pt.IPLeiria.event_bingo.exeptions.BadRequestException;
 import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
 import pt.IPLeiria.event_bingo.services.LogBufferService;
@@ -21,7 +18,6 @@ import pt.IPLeiria.event_bingo.services.TransactionService;
 import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -43,7 +39,7 @@ public class TransactionController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public List<?> getTransactions(Authentication authentication) {
+    public ResponseEntity<?> getTransactions(Authentication authentication, Pageable pageable) {
 
         logBufferService.addLog(LogLevel.INFO, "List transactions");
 
@@ -53,15 +49,12 @@ public class TransactionController {
             throw new BadRequestException("User is not logged in!");
         }
 
-        if (user.getRole() == UserRole.ADMIN) {
-            return transactionService.adminList();
+        /*if (user.getRole() == UserRole.ADMIN) { //removido pq já tem uma rota especifica para ir buscar transações de cada user
+            return ResponseEntity.ok(transactionService.adminList());
         }
-        else {
-            return transactionService.list(user)
-                    .stream()
-                    .map(transactionMapper::toDto)
-                    .toList();
-        }
+        else {*/
+            return ResponseEntity.ok(transactionService.list(user, pageable).map(transactionMapper::toDto));
+        //}
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -78,15 +71,13 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("{id}")
-    public ResponseEntity<?> getTransaction(@PathVariable long id){
+    public ResponseEntity<?> getTransaction(@PathVariable long id, Pageable pageable){
         logBufferService.addLog(LogLevel.INFO, "Get transaction with id: " + id);
 
         var user = userService.get(id);
 
         return ResponseEntity.ok(
-                transactionService.list(user).stream()
-                .map(transactionMapper::toDto)
-                .toList()
+                transactionService.list(user, pageable).map(transactionMapper::toDto)
         );
     }
 

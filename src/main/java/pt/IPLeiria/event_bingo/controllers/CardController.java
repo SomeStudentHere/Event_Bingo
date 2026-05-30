@@ -1,6 +1,8 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -36,7 +38,7 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CardDto>> getCards(Authentication authentication) {
+    public ResponseEntity<?> getCards(Authentication authentication, @ParameterObject Pageable pageable) {
 
         User user = null;
 
@@ -46,13 +48,9 @@ public class CardController {
 
         logBufferService.addLog(LogLevel.INFO, (user == null?"Anonymous request":(user.getUsername() + " requested")) + " list of cards");
 
-        var cards = cardService.list(user);
+        var cards = cardService.list(user, pageable);
 
-        return ResponseEntity.ok(
-                cards.stream()
-                        .map(cardMapper::toDto)
-                        .toList()
-        );
+        return ResponseEntity.ok(cards.map(cardMapper::toDto));
     }
 
     @GetMapping("{id}")

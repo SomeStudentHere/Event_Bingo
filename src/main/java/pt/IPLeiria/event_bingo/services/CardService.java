@@ -3,6 +3,8 @@ package pt.IPLeiria.event_bingo.services;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
@@ -59,13 +61,13 @@ public class CardService {
         return cardRepository.findById(id).orElseThrow(() -> new NotFoundException("Card " + id + " not Found"));
     }
 
-    public List<Card> list(User user) {
+    public Page<Card> list(User user, Pageable pageable) {
 
         if (user != null && user.getRole() == UserRole.ADMIN) {
-            return cardRepository.findAll();
+            return cardRepository.findAll(pageable);
         }
 
-        return cardRepository.findCardsByApprovedIs(true);
+        return cardRepository.findCardsByApprovedIs(true, pageable);
     }
 
     public Card create(CardRequestDto request){
@@ -247,20 +249,21 @@ public class CardService {
             card.setPrice(rand.nextDouble(request.getPrice_max() - request.getPrice_min() + 1) + request.getPrice_min());
             card.setLine_prize(rand.nextDouble(request.getLine_prize_max() - request.getLine_prize_min() + 1) + request.getLine_prize_min());
             card.setBingo_prize(rand.nextDouble(request.getBingo_prize_max() - request.getBingo_prize_min() + 1) + request.getBingo_prize_min());
+            card.setDate(LocalDateTime.now());
 
             do {
                 Collections.shuffle(shuffled);
                 card.setEventsWithSignature(shuffled.stream().limit((long) request.getCols() * request.getRows()).collect(Collectors.toList()));
                 tries++;
                 if (tries > 5) break;
-            } while (cardRepository.existsByEventsSignature(card.getEventsSignature()));
+            } while (cardRepository.existsByEventsSignature(card.getEventsSignature()) || cards.stream().anyMatch(c -> c.getEventsSignature().equals(card.getEventsSignature())));
 
             if (tries > 5) break;
 
             cards.add(card);
             updateGeneration(true, ((double)cards.size())/request.getCount());
 
-            System.out.printf("Card created with signature: " + card.getEventsSignature());
+            logBufferService.addLog(LogLevel.INFO, "Card created with signature: " + card.getEventsSignature());
         }
 
         if (!cards.isEmpty())

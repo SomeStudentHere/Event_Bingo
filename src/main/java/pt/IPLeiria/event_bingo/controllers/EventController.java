@@ -1,6 +1,7 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +14,6 @@ import pt.IPLeiria.event_bingo.mapper.EventMapper;
 import pt.IPLeiria.event_bingo.services.EventService;
 import pt.IPLeiria.event_bingo.services.LogBufferService;
 import tools.jackson.databind.ObjectMapper;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/events")
@@ -33,13 +32,10 @@ public class EventController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<EventDto>> getEvents(){
+    public ResponseEntity<?> getEvents(Pageable  pageable) {
         logBufferService.addLog(LogLevel.INFO, "List of Events requested");
 
-        return ResponseEntity.ok(eventService.list()
-                .stream()
-                .map(eventMapper::toDto)
-                .toList());
+        return ResponseEntity.ok(eventService.list(pageable).map(eventMapper::toDto));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
