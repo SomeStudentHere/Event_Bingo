@@ -58,6 +58,19 @@ public class UserServiceTest {
             .status(UserStatus.ACTIVE)
             .build();
 
+
+    User user2 = User.builder()
+            .id(0)
+            .full_name("test2")
+            .username("test2")
+            .email("b@mail.com")
+            .password("test")
+            .balance(0)
+            .avatar(null)
+            .cards(new ArrayList<>())
+            .status(UserStatus.ACTIVE)
+            .build();
+
     UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getFull_name(), user.getAvatar(), user.getRole());
     UserAllDto userAllDto = new UserAllDto(user.getId(), user.getFull_name(), user.getUsername(), user.getEmail(), user.getBalance(), user.getStatus(), user.getAvatar(), new ArrayList<>(), user.getRole());
     UserPatchDto userPatchDto = new UserPatchDto();
@@ -68,8 +81,6 @@ public class UserServiceTest {
     public void testUserServiceUpdateSuccess() {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
-        when(userRepository.existsByUsername(user.getUsername())).thenReturn(false);
 
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
 
@@ -82,26 +93,25 @@ public class UserServiceTest {
         Assertions.assertNotNull(savedUser);
     }
 
-    //todo
     @Test
     public void testUserServiceUpdateFailEmail() {
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user2));
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
 
-        Assertions.assertThrows(BadRequestException.class, () -> userService.update(userRegisterDto, user.getId()));
+        Assertions.assertThrows(BadRequestException.class, () -> userService.update(userRegisterDto, user.getId(), user));
     }
 
 
-    //todo
     @Test
     public void testUserServiceUpdateFailUsername() {
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user2));
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
         when(userRepository.existsByUsername(user.getUsername())).thenReturn(true);
 
-        Assertions.assertThrows(BadRequestException.class, () -> userService.update(userRegisterDto, user.getId()));
+        Assertions.assertThrows(BadRequestException.class, () -> userService.update(userRegisterDto, user.getId(), user));
     }
 
     @Test
