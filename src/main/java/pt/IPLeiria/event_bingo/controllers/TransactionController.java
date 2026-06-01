@@ -1,6 +1,7 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,7 +40,7 @@ public class TransactionController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<?> getTransactions(Authentication authentication, Pageable pageable) {
+    public ResponseEntity<?> getTransactions(Authentication authentication, @ParameterObject Pageable pageable) {
 
         logBufferService.addLog(LogLevel.INFO, "List transactions");
 

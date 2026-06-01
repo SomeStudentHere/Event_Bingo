@@ -3,6 +3,7 @@ package pt.IPLeiria.event_bingo.controllers;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +33,7 @@ public class UserController {
     private final LogBufferService logBufferService;
 
     @GetMapping
-    public ResponseEntity<?> getUsers(Authentication authentication, Pageable pageable) {
+    public ResponseEntity<?> getUsers(Authentication authentication, @ParameterObject Pageable pageable) {
 
         logBufferService.addLog(LogLevel.INFO, "List users requested");
 

@@ -1,6 +1,7 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +33,7 @@ public class EventController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<?> getEvents(Pageable  pageable) {
+    public ResponseEntity<?> getEvents(@ParameterObject Pageable  pageable) {
         logBufferService.addLog(LogLevel.INFO, "List of Events requested");
 
         return ResponseEntity.ok(eventService.list(pageable).map(eventMapper::toDto));
