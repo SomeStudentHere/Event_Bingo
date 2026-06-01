@@ -1,6 +1,7 @@
 package pt.IPLeiria.event_bingo.controllers;
 
 import lombok.AllArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +19,7 @@ public class LogController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public Page<?> getLogs(Pageable pageable) {
+    public Page<?> getLogs(@ParameterObject Pageable pageable) {
         return applicationLogRepository.findAll(pageable);
     }
 }
