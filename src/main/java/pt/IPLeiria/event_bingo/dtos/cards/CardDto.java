@@ -23,4 +23,5 @@ public class CardDto {
     private List<EventDto> events;
     private boolean terminated;
     private LocalDateTime date;
+    private String eventsSignature;
 }
