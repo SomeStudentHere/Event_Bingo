@@ -7,6 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +26,7 @@ import pt.IPLeiria.event_bingo.entities.enums.UserStatus;
 import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.security.JwtAuthFilter;
 import pt.IPLeiria.event_bingo.security.JwtService;
+import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
@@ -54,6 +56,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private LogBufferService logBufferService;
 
     @MockitoBean
     private UserMapper userMapper;
@@ -86,7 +91,10 @@ public class UserControllerTest {
     //todo
     @Test
     public void endpointsWillReturnOkOnSuccess() throws Exception {
-        given(userService.list()).willReturn(new ArrayList<>());
+
+        var page = new PageImpl(List.of());
+
+        given(userService.list(any())).willReturn(page);
         given(userService.get(any())).willReturn(user);
         given(userService.update(any(), any(), any())).willReturn(user);
         given(userService.patch(any(), any(), any())).willReturn(user);

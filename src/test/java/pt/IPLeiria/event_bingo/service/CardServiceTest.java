@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import pt.IPLeiria.event_bingo.dtos.cards.CardBuilderDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardPatchDto;
 import pt.IPLeiria.event_bingo.dtos.cards.CardRequestDto;
@@ -23,6 +24,7 @@ import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.repositories.UserRepository;
 import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.CardService;
+import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.UserService;
 
 import java.time.LocalDateTime;
@@ -55,6 +57,9 @@ public class CardServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private LogBufferService logBufferService;
 
     @InjectMocks
     private CardService cardService;
