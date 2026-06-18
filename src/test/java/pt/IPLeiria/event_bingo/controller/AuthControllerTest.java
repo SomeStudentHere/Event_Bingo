@@ -20,6 +20,7 @@ import pt.IPLeiria.event_bingo.mapper.UserMapper;
 import pt.IPLeiria.event_bingo.security.JwtAuthFilter;
 import pt.IPLeiria.event_bingo.security.JwtService;
 import pt.IPLeiria.event_bingo.services.CardService;
+import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
@@ -43,6 +44,9 @@ public class AuthControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private LogBufferService logBufferService;
 
     @MockitoBean
     private JwtAuthFilter jwtAuthFilter;

@@ -7,6 +7,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,7 +29,9 @@ import pt.IPLeiria.event_bingo.mapper.TransactionMapper;
 import pt.IPLeiria.event_bingo.repositories.TransactionRepository;
 import pt.IPLeiria.event_bingo.security.JwtAuthFilter;
 import pt.IPLeiria.event_bingo.security.JwtService;
+import pt.IPLeiria.event_bingo.services.LogBufferService;
 import pt.IPLeiria.event_bingo.services.TransactionService;
+import pt.IPLeiria.event_bingo.services.UserService;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -58,6 +63,12 @@ public class TransactionControllerTest {
     private JwtService jwtService;
 
     @MockitoBean
+    private LogBufferService  logBufferService;
+
+    @MockitoBean
+    private UserService userService;
+
+    @MockitoBean
     private JwtAuthFilter jwtAuthFilter;
 
     @MockitoBean
@@ -87,10 +98,12 @@ public class TransactionControllerTest {
                 .role(UserRole.ADMIN)
                 .build();
 
-        AdminTransactionDto dto1 = new AdminTransactionDto(null, List.of());
-        AdminTransactionDto dto2 = new AdminTransactionDto(null, List.of());
+        Transaction dto1 = new Transaction();
+        Transaction dto2 = new Transaction();
 
-        given(transactionService.adminList()).willReturn(List.of(dto1, dto2));
+        var page = new PageImpl(List.of(dto1, dto2));
+
+        given(transactionService.list(any(), any())).willReturn(page);
 
         mockMvc.perform(get("/transactions")
                         .principal(new UsernamePasswordAuthenticationToken(
@@ -99,7 +112,7 @@ public class TransactionControllerTest {
                                 List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
                         )))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.content.length()").value(2));
     }
 
     @Test
@@ -127,7 +140,9 @@ public class TransactionControllerTest {
         userOnlyTransaction.setId(3);
         userOnlyTransaction.setUser(user);
 
-        given(transactionService.list(user)).willReturn(List.of(userOnlyTransaction));
+        var page = new PageImpl(List.of(userOnlyTransaction));
+
+        given(transactionService.list(any(), any(Pageable.class))).willReturn(page);
 
         mockMvc.perform(get("/transactions")
                         .principal(new UsernamePasswordAuthenticationToken(
@@ -136,6 +151,6 @@ public class TransactionControllerTest {
                                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
                         )))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.content.length()").value(1));
     }
 }

@@ -7,6 +7,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import pt.IPLeiria.event_bingo.entities.Card;
 import pt.IPLeiria.event_bingo.entities.User;
 import pt.IPLeiria.event_bingo.entities.enums.UserRole;
@@ -16,6 +20,8 @@ import pt.IPLeiria.event_bingo.services.CardService;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,11 +47,14 @@ public class CardControllerTest {
         notApproved.setId(2);
         notApproved.setApproved(false);
 
-        when(cardRepository.findAll()).thenReturn(List.of(approved, notApproved));
+        var pageable = PageRequest.of(0, 10);
+        var page = new PageImpl(List.of(approved, notApproved));
 
-        List<Card> result = cardService.list(admin);
+        when(cardRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        Assertions.assertEquals(2, result.size());
+        Page<Card> result = cardService.list(admin, pageable);
+
+        Assertions.assertEquals(2, result.getContent().size());
     }
 
     @Test
@@ -61,13 +70,16 @@ public class CardControllerTest {
 
         Card notApproved = new Card();
         notApproved.setId(2);
+        var page = new PageImpl(List.of(approved));
         notApproved.setApproved(false);
 
-        when(cardRepository.findCardsByApprovedIs(true)).thenReturn(List.of(approved));
+        when(cardRepository.findCardsByApprovedIs(eq(true), any(Pageable.class))).thenReturn(page);
 
-        List<Card> result = cardService.list(user);
+        var pageable = PageRequest.of(0, 10);
 
-        Assertions.assertEquals(1, result.size());
-        Assertions.assertTrue(result.get(0).isApproved());
+        Page<Card> result = cardService.list(user, pageable);
+
+        Assertions.assertEquals(1, result.getContent().size());
+        Assertions.assertTrue(result.getContent().get(0).isApproved());
     }
 }
