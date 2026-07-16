@@ -252,6 +252,14 @@ public class CardService {
             } while (cardRepository.existsByEventsSignature(card.getEventsSignature()) ||
                     cards.stream().anyMatch(c -> c.getEventsSignature().equals(card.getEventsSignature())));
 
+            try {
+                logBufferService.addLog(LogLevel.INFO, "[FOR TESTING] Waiting 10 seconds...");
+                Thread.sleep(10000);
+                logBufferService.addLog(LogLevel.INFO, "Waiting done!");
+            } catch (InterruptedException e) {
+                logBufferService.addLog(LogLevel.WARNING, "Error while waiting!");
+            }
+
             if (tries > 5) break;
 
             cards.add(card);
