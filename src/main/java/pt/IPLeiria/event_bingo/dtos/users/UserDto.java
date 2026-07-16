@@ -11,7 +11,6 @@ import pt.IPLeiria.event_bingo.entities.enums.UserRole;
 public class UserDto {
     private Long id;
     private String username;
-    private String full_name;
     private String avatar;
     private UserRole role;
 }

@@ -1,8 +1,10 @@
 package pt.IPLeiria.event_bingo.handlers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -83,7 +85,14 @@ public class ExceptionHandlingController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception ex) {
-        logBufferService.addLog(LogLevel.ERROR, ex.getMessage());
+        logBufferService.addLog(LogLevel.ERROR,  ex.getMessage());
         return ResponseEntity.internalServerError().body(Map.of("error", "Internal Server Error"));
+    }
+
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<?> authException(Exception ex) {
+        logBufferService.addLog(LogLevel.WARNING,  ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }

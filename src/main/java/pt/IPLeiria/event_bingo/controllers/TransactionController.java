@@ -50,12 +50,7 @@ public class TransactionController {
             throw new BadRequestException("User is not logged in!");
         }
 
-        /*if (user.getRole() == UserRole.ADMIN) { //removido pq já tem uma rota especifica para ir buscar transações de cada user
-            return ResponseEntity.ok(transactionService.adminList());
-        }
-        else {*/
-            return ResponseEntity.ok(transactionService.list(user, pageable).map(transactionMapper::toDto));
-        //}
+        return ResponseEntity.ok(transactionService.list(user, pageable).map(transactionMapper::toDto));
     }
 
     @PreAuthorize("isAuthenticated()")

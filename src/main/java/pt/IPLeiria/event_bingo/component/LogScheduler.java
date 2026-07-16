@@ -17,7 +17,7 @@ public class LogScheduler {
     private final ApplicationLogRepository repository;
 
     @Scheduled(fixedRate = 5000)
-    public void drainLogs() {
+    public void saveLogs() {
 
         List<ApplicationLog> logs = logBufferService.drainLogs();
 

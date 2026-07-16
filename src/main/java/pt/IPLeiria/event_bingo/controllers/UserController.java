@@ -83,16 +83,6 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-/* replace pelo /auth/register
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserRegisterDto request, UriComponentsBuilder uriBuilder){
-        var user = userService.create(request);
-
-        var userDto = userMapper.toDto(user);
-
-        return ResponseEntity.created(uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri()).body(userDto);
-    }*/
-
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     @PutMapping("{id}")
     public ResponseEntity<UserDto> updateUser(Authentication authentication, @PathVariable Long id, @Valid @RequestBody UserRegisterDto request){
@@ -128,6 +118,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserAllDto> getMe(Authentication authentication) {
 

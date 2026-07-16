@@ -213,13 +213,6 @@ public class CardService {
         this.progress = progress;
     }
 
-
-    //problema (já resolvido)
-    //inicialmente tava a passar events em vez de eventsId
-    //Erro por tar a passar entities e fazer com q fique desync
-
-    //esqueci me de @Transactional por isso os repositories n funcionavam
-
     @Async
     @Transactional
     public void generateCards(CardBuilderDto request){
@@ -256,7 +249,8 @@ public class CardService {
                 card.setEventsWithSignature(shuffled.stream().limit((long) request.getCols() * request.getRows()).collect(Collectors.toList()));
                 tries++;
                 if (tries > 5) break;
-            } while (cardRepository.existsByEventsSignature(card.getEventsSignature()) || cards.stream().anyMatch(c -> c.getEventsSignature().equals(card.getEventsSignature())));
+            } while (cardRepository.existsByEventsSignature(card.getEventsSignature()) ||
+                    cards.stream().anyMatch(c -> c.getEventsSignature().equals(card.getEventsSignature())));
 
             if (tries > 5) break;
 

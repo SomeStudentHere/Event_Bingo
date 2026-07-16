@@ -23,7 +23,7 @@ public class Transaction {
     private User user;
 
     @Column(nullable = false)
-    @Enumerated()
+    @Enumerated(EnumType.STRING)
     private TransactionType type;
 
     @Column(nullable = false)

@@ -29,7 +29,7 @@ public class User {
     @Column(nullable = false)
     private double balance;
     @Column(nullable = false)
-    @Enumerated()
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -29,7 +29,7 @@ public class Event {
     @Column(nullable = false)
     private String sport;
     @Column(nullable = false)
-    @Enumerated()
+    @Enumerated(EnumType.STRING)
     private EventStatus status;
 
     @ManyToMany(mappedBy = "events")
